@@ -35,7 +35,7 @@ func Test_readJSON(t *testing.T) {
 	defer req.Body.Close()
 
 	// call readJSON and check for an error
-	err = testApp.readJSON(rr, req, &decodedJSON)
+	err = testApp.ReadJSON(rr, req, &decodedJSON)
 	if err != nil {
 		t.Error("failed to decode json", err)
 	}
@@ -45,14 +45,14 @@ func Test_writeJSON(t *testing.T) {
 	var testApp Tools
 
 	rr := httptest.NewRecorder()
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
 		Message: "foo",
 	}
 
 	headers := make(http.Header)
 	headers.Add("FOO", "BAR")
-	err := testApp.writeJSON(rr, http.StatusOK, payload, headers)
+	err := testApp.WriteJSON(rr, http.StatusOK, payload, headers)
 	if err != nil {
 		t.Errorf("failed to write JSON: %v", err)
 	}
@@ -62,12 +62,12 @@ func Test_errorJSON(t *testing.T) {
 	var testApp Tools
 
 	rr := httptest.NewRecorder()
-	err := testApp.errorJSON(rr, errors.New("some error"))
+	err := testApp.ErrorJSON(rr, errors.New("some error"))
 	if err != nil {
 		t.Error(err)
 	}
 
-	var requestPayload jsonResponse
+	var requestPayload JsonResponse
 	decoder := json.NewDecoder(rr.Body)
 	err = decoder.Decode(&requestPayload)
 	if err != nil {
@@ -82,7 +82,7 @@ func Test_errorJSON(t *testing.T) {
 func Test_randomString(t *testing.T) {
 	var testApp Tools
 
-	s := testApp.randomString(10)
+	s := testApp.RandomString(10)
 	if len(s) != 10 {
 		t.Error("wrong length random string returned")
 	}
