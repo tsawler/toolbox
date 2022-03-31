@@ -4,10 +4,50 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+// RoundTripFunc .
+type RoundTripFunc func(req *http.Request) *http.Response
+
+// RoundTrip .
+func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req), nil
+}
+
+//NewTestClient returns *http.Client with Transport replaced to avoid making real calls
+func NewTestClient(fn RoundTripFunc) *http.Client {
+	return &http.Client{
+		Transport: RoundTripFunc(fn),
+	}
+}
+
+func Test_PushJSONToRemote(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		// Test request parameters
+		//equals(t, req.URL.String(), "http://example.com/some/path")
+		return &http.Response{
+			StatusCode: 200,
+			// Send response to be tested
+			Body: ioutil.NopCloser(bytes.NewBufferString(`OK`)),
+			// Must be set to non-nil value or it panics
+			Header: make(http.Header),
+		}
+	})
+
+	var testApp Tools
+	var foo struct {
+		Bar string `json:"bar"`
+	}
+	foo.Bar = "bar"
+	_, err := testApp.PushJSONToRemote(client, "http://example.com/some/path", foo)
+	if err != nil {
+		t.Error("failed to call remote url", err)
+	}
+}
 
 func Test_readJSON(t *testing.T) {
 	var testApp Tools

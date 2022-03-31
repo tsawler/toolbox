@@ -91,27 +91,26 @@ func (t *Tools) RandomString(n int) string {
 
 // PushJSONToRemote posts arbitrary json to some url, and returns error,
 // if any, as well as the response status code
-func (t *Tools) PushJSONToRemote(uri string, data any) (error, int) {
+func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data any) (int, error) {
 	// create json we'll send
 	jsonData, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
-		return err, 0
+		return 0, err
 	}
 
 	// build the request and set header
 	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return err, 0
+		return 0, err
 	}
 	request.Header.Set("Content-Type", "application/json")
 
 	// call the uri
-	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		return err, 0
+		return 0, err
 	}
 	defer response.Body.Close()
 
-	return nil, response.StatusCode
+	return response.StatusCode, nil
 }
