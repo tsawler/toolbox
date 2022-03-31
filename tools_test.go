@@ -110,11 +110,11 @@ func Test_errorJSON(t *testing.T) {
 	decoder := json.NewDecoder(rr.Body)
 	err = decoder.Decode(&requestPayload)
 	if err != nil {
-		t.Error("received error when decoding errorJSON payload:", err)
+		t.Error("received error when decoding ErrorJSON payload:", err)
 	}
 
 	if !requestPayload.Error {
-		t.Error("error set to false in response from errorJSON, and should be set to true")
+		t.Error("error set to false in response from ErrorJSON, and should be set to true")
 	}
 }
 
