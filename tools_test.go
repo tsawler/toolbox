@@ -28,7 +28,6 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 func Test_PushJSONToRemote(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
 		// Test request parameters
-		//equals(t, req.URL.String(), "http://example.com/some/path")
 		return &http.Response{
 			StatusCode: 200,
 			// Send response to be tested
