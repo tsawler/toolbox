@@ -1,6 +1,7 @@
 package toolbox
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
@@ -86,4 +87,28 @@ func (t *Tools) RandomString(n int) string {
 		s[i] = r[x%y]
 	}
 	return string(s)
+}
+
+func (t *Tools) PushJSONToRemote(uri string, data any) (error, int) {
+	jsonData, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return err, 0
+	}
+
+	// now build the request and set header
+	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err, 0
+	}
+	request.Header.Set("Content-Type", "application/json")
+
+	// call the service
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return err, 0
+	}
+	defer response.Body.Close()
+
+	return nil, response.StatusCode
 }
