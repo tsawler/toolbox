@@ -25,6 +25,7 @@ import (
 func main() {
 	var tools toolbox.Tools
 
+	// get a random string
 	rnd := tools.RandomString(10)
 	fmt.Println(rnd)
 }
