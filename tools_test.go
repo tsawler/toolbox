@@ -25,7 +25,7 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 	}
 }
 
-func Test_PushJSONToRemote(t *testing.T) {
+func TestTools_PushJSONToRemote(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
 		// Test request parameters
 		return &http.Response{
@@ -48,7 +48,7 @@ func Test_PushJSONToRemote(t *testing.T) {
 	}
 }
 
-func Test_readJSON(t *testing.T) {
+func TestTools_ReadJSON(t *testing.T) {
 	var testApp Tools
 
 	// create a sample JSON file and add it to body
@@ -80,7 +80,7 @@ func Test_readJSON(t *testing.T) {
 	}
 }
 
-func Test_writeJSON(t *testing.T) {
+func TestTools_WriteJSON(t *testing.T) {
 	var testApp Tools
 
 	rr := httptest.NewRecorder()
@@ -97,7 +97,7 @@ func Test_writeJSON(t *testing.T) {
 	}
 }
 
-func Test_errorJSON(t *testing.T) {
+func TestTools_ErrorJSON(t *testing.T) {
 	var testApp Tools
 
 	rr := httptest.NewRecorder()
@@ -118,7 +118,7 @@ func Test_errorJSON(t *testing.T) {
 	}
 }
 
-func Test_randomString(t *testing.T) {
+func TestTools_RandomString(t *testing.T) {
 	var testApp Tools
 
 	s := testApp.RandomString(10)
@@ -127,7 +127,7 @@ func Test_randomString(t *testing.T) {
 	}
 }
 
-func Test_DownloadStaticFile(t *testing.T) {
+func TestTools_DownloadStaticFile(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 
