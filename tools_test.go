@@ -84,7 +84,7 @@ func TestTools_WriteJSON(t *testing.T) {
 	var testApp Tools
 
 	rr := httptest.NewRecorder()
-	payload := JsonResponse{
+	payload := JSONResponse{
 		Error:   false,
 		Message: "foo",
 	}
@@ -106,7 +106,7 @@ func TestTools_ErrorJSON(t *testing.T) {
 		t.Error(err)
 	}
 
-	var requestPayload JsonResponse
+	var requestPayload JSONResponse
 	decoder := json.NewDecoder(rr.Body)
 	err = decoder.Decode(&requestPayload)
 	if err != nil {
