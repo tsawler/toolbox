@@ -13,10 +13,12 @@ import (
 
 const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
 
+// Tools is the type for this package. Create a variable of this type and you have access
+// to all the methods with the receiver type *Tools.
 type Tools struct{}
 
-// JsonResponse is the type used for sending JSON around
-type JsonResponse struct {
+// JSONResponse is the type used for sending JSON around
+type JSONResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
@@ -73,7 +75,7 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 		statusCode = status[0]
 	}
 
-	var payload JsonResponse
+	var payload JSONResponse
 	payload.Error = true
 	payload.Message = err.Error()
 
