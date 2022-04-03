@@ -126,3 +126,28 @@ func Test_randomString(t *testing.T) {
 		t.Error("wrong length random string returned")
 	}
 }
+
+func Test_DownloadStaticFile(t *testing.T) {
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	var testApp Tools
+
+	testApp.DownloadStaticFile(rr, req, "./testdata", "tgg.jpg", "gatsby.jpg")
+
+	res := rr.Result()
+	defer res.Body.Close()
+
+	if res.Header["Content-Length"][0] != "240366" {
+		t.Error("wrong content length of", res.Header["Content-Length"][0])
+	}
+
+	if res.Header["Content-Disposition"][0] != "attachment; filename=\"gatsby.jpg\"" {
+		t.Error("wrong content disposition of", res.Header["Content-Disposition"][0])
+	}
+
+	_, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Error(err)
+	}
+}
