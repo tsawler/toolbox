@@ -43,6 +43,12 @@ type JSONPayload struct {
     Data string `json:"data"`
 }
 
+type jsonResponse struct {
+    Error   bool   `json:"error"`
+    Message string `json:"message"`
+    Data    any    `json:"data,omitempty"`
+}
+
 // SomeHandler is the handler to accept a post request consisting of json payload
 func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     var tools toolbox.Tools
