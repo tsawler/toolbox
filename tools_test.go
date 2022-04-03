@@ -78,6 +78,26 @@ func TestTools_ReadJSON(t *testing.T) {
 	if err != nil {
 		t.Error("failed to decode json", err)
 	}
+
+	// create json with two json entries
+	badJSON := `
+		{
+			"foo": "bar"
+		}
+		{
+			"alpha": "beta"
+		}`
+
+	// create a request with the body
+	req, err = http.NewRequest("POST", "/", bytes.NewReader([]byte(badJSON)))
+	if err != nil {
+		t.Log("Error", err)
+	}
+
+	err = testApp.ReadJSON(rr, req, &decodedJSON)
+	if err == nil {
+		t.Error("did not get an error with bad json")
+	}
 }
 
 func TestTools_WriteJSON(t *testing.T) {
@@ -115,6 +135,12 @@ func TestTools_ErrorJSON(t *testing.T) {
 
 	if !requestPayload.Error {
 		t.Error("error set to false in response from ErrorJSON, and should be set to true")
+	}
+
+	// test with status
+	err = testApp.ErrorJSON(rr, errors.New("another error"), http.StatusServiceUnavailable)
+	if err != nil {
+		t.Error(err)
 	}
 }
 
