@@ -37,12 +37,13 @@ func main() {
 In a handler, for example:
 
 ~~~Go
-// JSONPayload is a type for JSON data
+// JSONPayload is the type for JSON data that we receive
 type JSONPayload struct {
     Name string `json:"name"`
     Data string `json:"data"`
 }
 
+// jsonResponse is the type for JSON data that we send
 type jsonResponse struct {
     Error   bool   `json:"error"`
     Message string `json:"message"`
