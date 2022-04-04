@@ -24,6 +24,8 @@ import (
 )
 
 func main() {
+	// create a variable of type toolbox.Tools, so we can use this variable
+	// to call the methods on that type
 	var tools toolbox.Tools
 
 	// get a random string
