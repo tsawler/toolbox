@@ -18,7 +18,9 @@ const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 // Tools is the type for this package. Create a variable of this type and you have access
 // to all the methods with the receiver type *Tools.
-type Tools struct{}
+type Tools struct {
+	MaxFileSize int
+}
 
 // JSONResponse is the type used for sending JSON around
 type JSONResponse struct {
@@ -30,6 +32,10 @@ type JSONResponse struct {
 // ReadJSON tries to read the body of a request and converts it into JSON
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1048576 // one megabyte
+	if t.MaxFileSize > 0 {
+		maxBytes = t.MaxFileSize
+	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	dec := json.NewDecoder(r.Body)
