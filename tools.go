@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path"
+
+	"github.com/gabriel-vasile/mimetype"
 )
 
 const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
@@ -126,4 +129,55 @@ func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, fi
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", displayName))
 
 	http.ServeFile(w, r, fp)
+}
+
+// UploadOneFile uploads one file to a specified directory, and gives it a random name.
+// It returns the newly named file, the original file name, and potentially an error.
+func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (string, string, error) {
+	// parse the form so we have access to the file
+	err := r.ParseMultipartForm(1024 * 1024 * 1024)
+	if err != nil {
+		return "", "", err
+	}
+
+	var filename, fileNameDisplay string
+	for _, fHeaders := range r.MultipartForm.File {
+		for _, hdr := range fHeaders {
+			infile, err := hdr.Open()
+			if err != nil {
+				return "", "", err
+			}
+			defer infile.Close()
+
+			ext, err := mimetype.DetectReader(infile)
+			if err != nil {
+				fmt.Println(err)
+				return "", "", err
+			}
+
+			_, err = infile.Seek(0, 0)
+			if err != nil {
+				fmt.Println(err)
+				return "", "", err
+			}
+
+			filename = t.RandomString(25) + ext.Extension()
+			fileNameDisplay = hdr.Filename
+
+			var outfile *os.File
+			defer outfile.Close()
+
+			if outfile, err = os.Create(uploadDir + filename); nil != err {
+				fmt.Println(err)
+			} else {
+				_, err := io.Copy(outfile, infile)
+				if err != nil {
+					fmt.Println(err)
+					return "", "", err
+				}
+			}
+		}
+
+	}
+	return filename, fileNameDisplay, nil
 }

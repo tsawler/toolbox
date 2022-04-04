@@ -4,9 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"image"
+	"image/png"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
@@ -176,4 +182,48 @@ func TestTools_DownloadStaticFile(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestTools_UploadOneFile(t *testing.T) {
+	// set up a pipe to avoid buffering
+	pr, pw := io.Pipe()
+	writer := multipart.NewWriter(pw)
+
+	go func() {
+		defer writer.Close()
+		// create the form data field 'fileupload'
+		part, err := writer.CreateFormFile("file", "./testdata/img.png")
+		if err != nil {
+			t.Error(err)
+		}
+
+		f, err := os.Open("./testdata/img.png")
+		if err != nil {
+			t.Error(err)
+		}
+		defer f.Close()
+		img, _, err := image.Decode(f)
+
+		err = png.Encode(part, img)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	// read from the pipe which receives data
+	request := httptest.NewRequest("POST", "/", pr)
+	request.Header.Add("Content-Type", writer.FormDataContentType())
+
+	var testTools Tools
+	newFile, _, err := testTools.UploadOneFile(request, "./testdata/uploads/")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", newFile)); os.IsNotExist(err) {
+		t.Error("Expected file to exist")
+	}
+
+	// clean up
+	_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", newFile))
 }
