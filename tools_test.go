@@ -203,6 +203,9 @@ func TestTools_UploadOneFile(t *testing.T) {
 		}
 		defer f.Close()
 		img, _, err := image.Decode(f)
+		if err != nil {
+			t.Error("error decoding image", err)
+		}
 
 		err = png.Encode(part, img)
 		if err != nil {
@@ -221,7 +224,7 @@ func TestTools_UploadOneFile(t *testing.T) {
 	}
 
 	if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", newFile)); os.IsNotExist(err) {
-		t.Error("Expected file to exist")
+		t.Error("Expected file to exist", err)
 	}
 
 	// clean up
