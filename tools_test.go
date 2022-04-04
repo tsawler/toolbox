@@ -56,6 +56,7 @@ func TestTools_PushJSONToRemote(t *testing.T) {
 
 func TestTools_ReadJSON(t *testing.T) {
 	var testApp Tools
+	testApp.MaxFileSize = 1048576 * 2
 
 	// create a sample JSON file and add it to body
 	sampleJSON := map[string]interface{}{
@@ -218,7 +219,6 @@ func TestTools_UploadOneFile(t *testing.T) {
 	request.Header.Add("Content-Type", writer.FormDataContentType())
 
 	var testTools Tools
-	testTools.MaxFileSize = 1048576 * 2
 
 	newFile, _, err := testTools.UploadOneFile(request, "./testdata/uploads/")
 	if err != nil {
