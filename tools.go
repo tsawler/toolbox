@@ -134,7 +134,12 @@ func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, fi
 // UploadOneFile uploads one file to a specified directory, and gives it a random name.
 // It returns the newly named file, the original file name, and potentially an error.
 func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (string, string, error) {
-	r.ParseMultipartForm(1024 * 1024 * 1024)
+	// parse the form so we have access to the file
+	err := r.ParseMultipartForm(1024 * 1024 * 1024)
+	if err != nil {
+		return "", "", err
+	}
+
 	var filename, fileNameDisplay string
 	for _, fHeaders := range r.MultipartForm.File {
 		for _, hdr := range fHeaders {
