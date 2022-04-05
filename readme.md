@@ -2,6 +2,7 @@
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/tsawler/goblender/master/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tsawler/toolbox)](https://goreportcard.com/report/github.com/tsawler/toolbox)
 ![Tests](https://github.com/tsawler/toolbox/actions/workflows/tests.yml/badge.svg)
+<a href="https://pkg.go.dev/github.com/tsawler/toolbox"><img src="https://img.shields.io/badge/godoc-reference-%23007d9c.svg"></a>
 # Toolbox
 
 A simple example of how to create a reusable Go module with commonly used tools.
