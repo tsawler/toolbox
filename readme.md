@@ -15,7 +15,7 @@ A simple example of how to create a reusable Go module with commonly used tools.
 
 ## Usage
 
-~~~go
+```go
 package main
 
 import (
@@ -32,13 +32,13 @@ func main() {
 	rnd := tools.RandomString(10)
 	fmt.Println(rnd)
 }
-~~~
+```
 
 ### Working with JSON
 
 In a handler, for example:
 
-~~~Go
+```go
 // JSONPayload is the type for JSON data that we receive
 type JSONPayload struct {
     Name string `json:"name"`
@@ -69,11 +69,18 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     // write the response back as JSON
     _ = tools.WriteJSON(w, http.StatusAccepted, resp)
 }
+```
 
+### Download a file
+
+To download a static file, and force it to download instead of displaying
+in a brower:
+
+```go
 // DownloadAFile downloads an arbitrary file
 func (app *Config) DownloadAFile(w http.ResponseWriter, r *http.Request) {
     var tools Tools
 
     tools.DownloadStaticFile(w, r, "./data", "file.pdf", "file.pdf")
 }
-~~~
+```
