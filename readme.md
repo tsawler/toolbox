@@ -74,7 +74,7 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
 ### Download a file
 
 To download a static file, and force it to download instead of displaying
-in a brower:
+in a browser:
 
 ```go
 // DownloadAFile downloads an arbitrary file
