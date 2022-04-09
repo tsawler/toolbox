@@ -9,13 +9,13 @@ A simple example of how to create a reusable Go module with commonly used tools.
 
 The included tools are:
 
-- read JSON
-- write JSON
-- produce a JSON encoded error response
-- download a static file
-- get a random string of length n
-- post JSON to a remote service 
-- create a directory if it does not already exist
+- Read JSON
+- Write JSON
+- Produce a JSON encoded error response
+- Download a static file
+- Get a random string of length n
+- Post JSON to a remote service 
+- Create a directory if it does not already exist
 
 **Not for production -- used in a course.**
 
@@ -55,13 +55,6 @@ type JSONPayload struct {
     Data string `json:"data"`
 }
 
-// jsonResponse is the type for JSON data that we send
-type jsonResponse struct {
-    Error   bool   `json:"error"`
-    Message string `json:"message"`
-    Data    any    `json:"data,omitempty"`
-}
-
 // SomeHandler is the handler to accept a post request consisting of json payload
 func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     var tools toolbox.Tools
@@ -69,9 +62,11 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     // read json into var
     var requestPayload JSONPayload
     _ = tools.ReadJSON(w, r, &requestPayload)
+	
+	// do something with the data here...
     
     // create the response we'll send back as JSON
-    resp := jsonResponse{
+    resp := toolbox.JSONResponse{
         Error:   false,
         Message: "logged",
     }
