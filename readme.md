@@ -63,7 +63,7 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     var requestPayload JSONPayload
     _ = tools.ReadJSON(w, r, &requestPayload)
 	
-	// do something with the data here...
+    // do something with the data here...
     
     // create the response we'll send back as JSON
     resp := toolbox.JSONResponse{
