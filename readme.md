@@ -15,6 +15,7 @@ The included tools are:
 - download a static file
 - get a random string of length n
 - post JSON to a remote service 
+- create a directory if it does not already exist
 
 **Not for production -- used in a course.**
 
