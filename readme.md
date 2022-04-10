@@ -17,6 +17,7 @@ The included tools are:
 - Get a random string of length n
 - Post JSON to a remote service 
 - Create a directory if it does not already exist
+- Create a directory, including all parent directories, if it does not already exist
 
 **Not for production -- used in a course.**
 
