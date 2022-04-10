@@ -248,6 +248,22 @@ func TestTools_CreateDirIfNotExist(t *testing.T) {
 
 	err = testTool.CreateDirIfNotExist("./foo/myDir")
 	if err == nil {
+		t.Error("Did not get an error when one was expected")
+	}
+
+	_ = os.Remove("./testdata/myDir")
+}
+
+func TestTools_CreateFullDirIfNotExist(t *testing.T) {
+	var testTool Tools
+
+	err := testTool.CreateFullDirIfNotExist("./testdata/myDir")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = testTool.CreateFullDirIfNotExist("./testdata/myDir")
+	if err != nil {
 		t.Error(err)
 	}
 
