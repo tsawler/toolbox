@@ -91,3 +91,21 @@ func (app *Config) DownloadAFile(w http.ResponseWriter, r *http.Request) {
     tools.DownloadStaticFile(w, r, "./data", "file.pdf", "file.pdf")
 }
 ```
+
+### Creating a directory
+
+To create a directory if it does not already exist:
+
+```go
+// SomeHandler is some kind of handler
+func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
+    var tools Tools
+
+	err := tools.CreateDirIfNotExist("./myDir")
+    if err != nil {
+        // do something with the error...
+    }
+	
+	// keep going in the handler...
+}
+```
