@@ -101,7 +101,7 @@ To create a directory if it does not already exist:
 func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     var tools Tools
 
-	err := tools.CreateDirIfNotExist("./myDir")
+    err := tools.CreateDirIfNotExist("./myDir")
     if err != nil {
         // do something with the error...
     }
