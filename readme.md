@@ -85,7 +85,7 @@ in a browser:
 ```go
 // DownloadAFile downloads an arbitrary file
 func (app *Config) DownloadAFile(w http.ResponseWriter, r *http.Request) {
-    var tools Tools
+    var tools toolbox.Tools
 
     tools.DownloadStaticFile(w, r, "./data", "file.pdf", "file.pdf")
 }
@@ -98,7 +98,7 @@ To create a directory if it does not already exist:
 ```go
 // SomeHandler is some kind of handler
 func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
-    var tools Tools
+    var tools toolbox.Tools
 
     err := tools.CreateDirIfNotExist("./myDir")
     if err != nil {
