@@ -137,55 +137,62 @@ func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, fi
 	http.ServeFile(w, r, fp)
 }
 
+// UploadedFile is a struct used to
+type UploadedFile struct {
+	NewFileName      string
+	OriginalFileName string
+	FileSize         int64
+}
+
 // UploadOneFile uploads one file to a specified directory, and gives it a random name.
 // It returns the newly named file, the original file name, and potentially an error.
-func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (string, string, error) {
+func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (*UploadedFile, error) {
 	// parse the form so we have access to the file
 	err := r.ParseMultipartForm(1024 * 1024 * 1024)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
+	var uploadedFile UploadedFile
 
-	var filename, fileNameDisplay string
 	for _, fHeaders := range r.MultipartForm.File {
 		for _, hdr := range fHeaders {
 			infile, err := hdr.Open()
 			if err != nil {
-				return "", "", err
+				return nil, err
 			}
 			defer infile.Close()
 
 			ext, err := mimetype.DetectReader(infile)
 			if err != nil {
 				fmt.Println(err)
-				return "", "", err
+				return nil, err
 			}
 
 			_, err = infile.Seek(0, 0)
 			if err != nil {
 				fmt.Println(err)
-				return "", "", err
+				return nil, err
 			}
 
-			filename = t.RandomString(25) + ext.Extension()
-			fileNameDisplay = hdr.Filename
+			uploadedFile.NewFileName = t.RandomString(25) + ext.Extension()
+			uploadedFile.OriginalFileName = hdr.Filename
 
 			var outfile *os.File
 			defer outfile.Close()
 
-			if outfile, err = os.Create(uploadDir + filename); nil != err {
-				fmt.Println(err)
+			if outfile, err = os.Create(uploadDir + uploadedFile.NewFileName); nil != err {
+				return nil, err
 			} else {
-				_, err := io.Copy(outfile, infile)
+				fileSize, err := io.Copy(outfile, infile)
 				if err != nil {
-					fmt.Println(err)
-					return "", "", err
+					return nil, err
 				}
+				uploadedFile.FileSize = fileSize
 			}
 		}
 
 	}
-	return filename, fileNameDisplay, nil
+	return &uploadedFile, nil
 }
 
 // CreateDirIfNotExist creates a directory, and all necessary parent directories, if it does not exist.
