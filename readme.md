@@ -108,3 +108,43 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
     // keep going in the handler...
 }
 ```
+
+### Uploading a File:
+
+To upload a file to a specific directory:
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/tsawler/toolbox"
+	"log"
+	"net/http"
+)
+
+func main() {
+
+	// handle route
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(w, "<h1>Hello World!</h1>")
+	})
+
+	http.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
+		var t toolbox.Tools
+
+		u, err := t.UploadOneFile(r, "./uploads")
+
+		// the returned variable, u, will have the type toolbox.Uploaded file
+		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", u.NewFileName, u.OriginalFileName, u.FileSize)))
+	})
+
+	// print a log message
+	log.Println("Starting server on port 8080")
+
+	// start the server
+	http.ListenAndServe(":8080", nil)
+}
+
+```
