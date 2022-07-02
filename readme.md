@@ -134,7 +134,7 @@ func main() {
 	http.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
 		var t toolbox.Tools
 
-		u, err := t.UploadOneFile(r, "./uploads")
+		u, _ := t.UploadOneFile(r, "./uploads")
 
 		// the returned variable, u, will have the type toolbox.Uploaded file
 		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", u.NewFileName, u.OriginalFileName, u.FileSize)))
