@@ -132,9 +132,23 @@ func main() {
 	})
 
 	http.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
-		var t toolbox.Tools
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
-		u, _ := t.UploadOneFile(r, "./uploads")
+		t := toolbox.Tools{
+			MaxFileSize:      1024 * 1024 * 1024,
+			AllowedFileTypes: []string{"image/gif"},
+		}
+
+		_ = t.CreateDirIfNotExist("./uploads")
+
+		u, err := t.UploadOneFile(r, "./uploads")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		// the returned variable, u, will have the type toolbox.Uploaded file
 		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", u.NewFileName, u.OriginalFileName, u.FileSize)))
@@ -146,5 +160,4 @@ func main() {
 	// start the server
 	http.ListenAndServe(":8080", nil)
 }
-
 ```
