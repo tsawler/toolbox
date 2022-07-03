@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/gabriel-vasile/mimetype"
 )
@@ -196,7 +197,7 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (*UploadedFile,
 			var outfile *os.File
 			defer outfile.Close()
 
-			if outfile, err = os.Create(uploadDir + uploadedFile.NewFileName); nil != err {
+			if outfile, err = os.Create(filepath.Join(uploadDir, uploadedFile.NewFileName)); nil != err {
 				return nil, err
 			} else {
 				fileSize, err := io.Copy(outfile, infile)
