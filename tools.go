@@ -19,7 +19,8 @@ const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 // Tools is the type for this package. Create a variable of this type and you have access
 // to all the methods with the receiver type *Tools.
 type Tools struct {
-	MaxFileSize int
+	MaxFileSize      int      // maximum size of uploaded files in bytes
+	AllowedFileTypes []string // allowed file types for upload (e.g. image/jpeg)
 }
 
 // JSONResponse is the type used for sending JSON around
@@ -166,6 +167,21 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (*UploadedFile,
 			if err != nil {
 				fmt.Println(err)
 				return nil, err
+			}
+
+			allowed := false
+			if len(t.AllowedFileTypes) > 0 {
+				for _, x := range t.AllowedFileTypes {
+					if ext.Is(x) {
+						allowed = true
+					}
+				}
+			} else {
+				allowed = true
+			}
+
+			if !allowed {
+				return nil, errors.New("the uploaded file type is not permitted")
 			}
 
 			_, err = infile.Seek(0, 0)
