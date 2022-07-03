@@ -219,6 +219,7 @@ func TestTools_UploadOneFile(t *testing.T) {
 	request.Header.Add("Content-Type", writer.FormDataContentType())
 
 	var testTools Tools
+	testTools.AllowedFileTypes = []string{"image/png"}
 
 	uploadedFile, err := testTools.UploadOneFile(request, "./testdata/uploads/")
 	if err != nil {
