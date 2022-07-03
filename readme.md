@@ -139,7 +139,7 @@ func main() {
 
 		t := toolbox.Tools{
 			MaxFileSize:      1024 * 1024 * 1024,
-			AllowedFileTypes: []string{"image/gif"},
+			AllowedFileTypes: []string{"image/gif", "image/png", "image/jpeg"},
 		}
 
 		_ = t.CreateDirIfNotExist("./uploads")
