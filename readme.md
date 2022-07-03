@@ -150,7 +150,7 @@ func main() {
 			return
 		}
 
-		// the returned variable, u, will have the type toolbox.Uploaded file
+		// the returned variable, u, will have the type toolbox.UploadedFile
 		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", u.NewFileName, u.OriginalFileName, u.FileSize)))
 	})
 
