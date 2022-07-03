@@ -149,15 +149,10 @@ type UploadedFile struct {
 // UploadOneFile uploads one file to a specified directory, and gives it a random name.
 // It returns the newly named file, the original file name, and potentially an error.
 func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (*UploadedFile, error) {
-	// make sure the file does not exceed our file size limit
-	if r.ContentLength > int64(t.MaxFileSize) {
-		return nil, errors.New("the uploaded file is too big")
-	}
-
 	// parse the form so we have access to the file
-	err := r.ParseMultipartForm(32 << 20)
+	err := r.ParseMultipartForm(int64(t.MaxFileSize))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("the uploaded file is too big")
 	}
 	var uploadedFile UploadedFile
 
