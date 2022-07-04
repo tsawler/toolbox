@@ -113,7 +113,7 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
 
 To upload a file to a specific directory, with this for HTML:
 
-```
+```html
 <!doctype html>
 <html lang="en">
 <head>
