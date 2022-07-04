@@ -141,7 +141,7 @@ func (t *Tools) RandomString(n int) string {
 // if any, as well as the response status code
 func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface{}) (int, error) {
 	// create json we'll send
-	jsonData, err := json.MarshalIndent(data, "", "\t")
+	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return 0, err
 	}
