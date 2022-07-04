@@ -111,7 +111,29 @@ func (app *Config) SomeHandler(w http.ResponseWriter, r *http.Request) {
 
 ### Uploading a File:
 
-To upload a file to a specific directory:
+To upload a file to a specific directory, with this for HTML:
+
+```
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Upload test</title>
+</head>
+<body>
+
+<form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="uploaded" multiple>
+    <input type="submit">
+</form>
+
+</body>
+</html>
+```
+And this for a Go application:
 
 ```go
 package main
@@ -125,12 +147,10 @@ import (
 
 func main() {
 
-	// handle route
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		fmt.Fprint(w, "<h1>Hello World!</h1>")
-	})
+	// handle html route (http://localhost:8080/)
+	http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("."))))
 
+	// Post handler 
 	http.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
