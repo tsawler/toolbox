@@ -26,13 +26,13 @@ type Tools struct {
 
 // JSONResponse is the type used for sending JSON around
 type JSONResponse struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
+	Error   bool        `json:"error"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 // ReadJSON tries to read the body of a request and converts it into JSON
-func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
+func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 	if t.MaxJSONSize != 0 {
 		maxBytes = t.MaxJSONSize
@@ -88,7 +88,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data any) error
 }
 
 // WriteJSON takes a response status code and arbitrary data and writes a json response to the client
-func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
+func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func (t *Tools) RandomString(n int) string {
 
 // PushJSONToRemote posts arbitrary json to some url, and returns error,
 // if any, as well as the response status code
-func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data any) (int, error) {
+func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface{}) (int, error) {
 	// create json we'll send
 	jsonData, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
