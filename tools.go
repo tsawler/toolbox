@@ -172,7 +172,7 @@ func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, fi
 	http.ServeFile(w, r, fp)
 }
 
-// UploadedFile is a struct used to
+// UploadedFile is a struct used for the uploaded file
 type UploadedFile struct {
 	NewFileName      string
 	OriginalFileName string
