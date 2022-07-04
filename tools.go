@@ -12,8 +12,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/gabriel-vasile/mimetype"
 )
 
 const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
@@ -187,7 +185,7 @@ type UploadedFile struct {
 // will use the original file name.
 func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool) (*UploadedFile, error) {
 	// check to see if we are renaming the file with the optional last parameter
-	renameFile := false
+	renameFile := true
 	if len(rename) > 0 {
 		renameFile = rename[0]
 	}
@@ -207,16 +205,17 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool)
 			}
 			defer infile.Close()
 
-			ext, err := mimetype.DetectReader(infile)
+			buff := make([]byte, 512)
+			_, err = infile.Read(buff)
 			if err != nil {
-				fmt.Println(err)
 				return nil, err
 			}
 
 			allowed := false
+			filetype := http.DetectContentType(buff)
 			if len(t.AllowedFileTypes) > 0 {
 				for _, x := range t.AllowedFileTypes {
-					if ext.Is(x) {
+					if strings.ToLower(filetype) == strings.ToLower(x) {
 						allowed = true
 					}
 				}
@@ -235,7 +234,7 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool)
 			}
 
 			if renameFile {
-				uploadedFile.NewFileName = t.RandomString(25) + ext.Extension()
+				uploadedFile.NewFileName = t.RandomString(25) + filepath.Ext(hdr.Filename)
 			} else {
 				uploadedFile.NewFileName = hdr.Filename
 			}
