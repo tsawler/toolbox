@@ -144,6 +144,9 @@ func main() {
 
 		_ = t.CreateDirIfNotExist("./uploads")
 
+		// upload the file. Note that if you don't want the file to be renamed,
+		// you can add an optional final parameter -- true will rename the file (the default)
+		// and false will preserve the original filename, etc. u, err := t.UploadOneFile(r, "./uploads", false)
 		u, err := t.UploadOneFile(r, "./uploads")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
