@@ -148,7 +148,15 @@ type UploadedFile struct {
 
 // UploadOneFile uploads one file to a specified directory, and gives it a random name.
 // It returns the newly named file, the original file name, and potentially an error.
-func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (*UploadedFile, error) {
+// If the optional last parameter is set to true, then we will not rename the file, but
+// will use the original file name.
+func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool) (*UploadedFile, error) {
+	// check to see if we are renaming the file with the optional last parameter
+	renameFile := false
+	if len(rename) > 0 {
+		renameFile = rename[0]
+	}
+
 	// parse the form so we have access to the file
 	err := r.ParseMultipartForm(int64(t.MaxFileSize))
 	if err != nil {
@@ -191,7 +199,11 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string) (*UploadedFile,
 				return nil, err
 			}
 
-			uploadedFile.NewFileName = t.RandomString(25) + ext.Extension()
+			if renameFile {
+				uploadedFile.NewFileName = t.RandomString(25) + ext.Extension()
+			} else {
+				uploadedFile.NewFileName = hdr.Filename
+			}
 			uploadedFile.OriginalFileName = hdr.Filename
 
 			var outfile *os.File
