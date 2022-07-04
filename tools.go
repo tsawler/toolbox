@@ -215,7 +215,7 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool)
 			filetype := http.DetectContentType(buff)
 			if len(t.AllowedFileTypes) > 0 {
 				for _, x := range t.AllowedFileTypes {
-					if strings.ToLower(filetype) == strings.ToLower(x) {
+					if strings.EqualFold(filetype, x) {
 						allowed = true
 					}
 				}
