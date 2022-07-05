@@ -211,7 +211,7 @@ func TestTools_UploadOneFile(t *testing.T) {
 			defer writer.Close()
 			defer wg.Done()
 
-			// create the form data field 'fileupload'
+			// create the form data field 'file'
 			part, err := writer.CreateFormFile("file", "./testdata/img.png")
 			if err != nil {
 				t.Error(err)
