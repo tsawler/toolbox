@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sync"
 	"testing"
 )
 
@@ -185,53 +186,74 @@ func TestTools_DownloadStaticFile(t *testing.T) {
 	}
 }
 
+var uploadTests = []struct {
+	name          string
+	allowedTypes  []string
+	errorExpected bool
+}{
+	{name: "allowed", allowedTypes: []string{"image/jpeg", "image/png"}, errorExpected: false},
+	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true},
+}
+
 func TestTools_UploadOneFile(t *testing.T) {
-	// set up a pipe to avoid buffering
-	pr, pw := io.Pipe()
-	writer := multipart.NewWriter(pw)
+	for _, e := range uploadTests {
+		// set up a pipe to avoid buffering
+		pr, pw := io.Pipe()
+		writer := multipart.NewWriter(pw)
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			defer writer.Close()
+			defer wg.Done()
 
-	go func() {
-		defer writer.Close()
-		// create the form data field 'fileupload'
-		part, err := writer.CreateFormFile("file", "./testdata/img.png")
-		if err != nil {
+			// create the form data field 'fileupload'
+			part, err := writer.CreateFormFile("file", "./testdata/img.png")
+			if err != nil {
+				t.Error(err)
+			}
+
+			f, err := os.Open("./testdata/img.png")
+			if err != nil {
+				t.Error(err)
+			}
+			defer f.Close()
+			img, _, err := image.Decode(f)
+			if err != nil {
+				t.Error("error decoding image", err)
+			}
+
+			err = png.Encode(part, img)
+			if err != nil {
+				t.Error(err)
+			}
+		}()
+
+		// read from the pipe which receives data
+		request := httptest.NewRequest("POST", "/", pr)
+		request.Header.Add("Content-Type", writer.FormDataContentType())
+
+		var testTools Tools
+		testTools.AllowedFileTypes = e.allowedTypes
+
+		uploadedFile, err := testTools.UploadOneFile(request, "./testdata/uploads/")
+		if err != nil && !e.errorExpected {
 			t.Error(err)
 		}
 
-		f, err := os.Open("./testdata/img.png")
-		if err != nil {
-			t.Error(err)
+		if !e.errorExpected {
+			if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFile.NewFileName)); os.IsNotExist(err) {
+				t.Errorf("%s: expected file to exist: %s", e.name, err.Error())
+			}
+
+			// clean up
+			_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFile.NewFileName))
 		}
-		defer f.Close()
-		img, _, err := image.Decode(f)
-		if err != nil {
-			t.Error("error decoding image", err)
+
+		if !e.errorExpected && err != nil {
+			t.Errorf("%s: error expected, but none received", e.name)
 		}
-
-		err = png.Encode(part, img)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
-
-	// read from the pipe which receives data
-	request := httptest.NewRequest("POST", "/", pr)
-	request.Header.Add("Content-Type", writer.FormDataContentType())
-
-	var testTools Tools
-	testTools.AllowedFileTypes = []string{"image/png"}
-
-	uploadedFile, err := testTools.UploadOneFile(request, "./testdata/uploads/")
-	if err != nil {
-		t.Error(err)
+		wg.Wait()
 	}
-
-	if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFile.NewFileName)); os.IsNotExist(err) {
-		t.Error("Expected file to exist", err)
-	}
-
-	// clean up
-	_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFile.NewFileName))
 }
 
 func TestTools_CreateDirIfNotExist(t *testing.T) {
