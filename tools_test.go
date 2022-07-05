@@ -54,56 +54,56 @@ func TestTools_PushJSONToRemote(t *testing.T) {
 	}
 }
 
-func TestTools_ReadJSON(t *testing.T) {
+var jsonTests = []struct {
+	name          string
+	json          string
+	errorExpected bool
+	maxSize       int
+}{
+	{name: "good json", json: `{"foo": "bar"}`, errorExpected: false, maxSize: 1024},
+	{name: "badly formatted json", json: `{"foo":"}`, errorExpected: true, maxSize: 1024},
+	{name: "incorrect type", json: `{"foo": 1}`, errorExpected: true, maxSize: 1024},
+	{name: "two json files", json: `{"foo": "bar"}{"alpha": "beta"}`, errorExpected: true, maxSize: 1024},
+	{name: "empty body", json: ``, errorExpected: true, maxSize: 1024},
+	{name: "syntax error in json", json: `{"foo": 1"}`, errorExpected: true, maxSize: 1024},
+	{name: "unknown field in json", json: `{"fooo": "bar"}`, errorExpected: true, maxSize: 1024},
+	{name: "missing field name", json: `{jack: "bar"}`, errorExpected: true, maxSize: 1024},
+	{name: "file too large", json: `{"foo": "bar"}`, errorExpected: true, maxSize: 5},
+	{name: "not json", json: `Hello, world`, errorExpected: true, maxSize: 5},
+}
+
+func Test_ReadJSON(t *testing.T) {
 	var testApp Tools
-	testApp.MaxFileSize = 1048576 * 2
 
-	// create a sample JSON file and add it to body
-	sampleJSON := map[string]interface{}{
-		"foo": "bar",
-	}
-	body, _ := json.Marshal(sampleJSON)
+	for _, e := range jsonTests {
+		// set max file size
+		testApp.MaxJSONSize = e.maxSize
 
-	// declare a variable to read the decoded json into
-	var decodedJSON struct {
-		Foo string `json:"foo"`
-	}
-
-	// create a request with the body
-	req, err := http.NewRequest("POST", "/", bytes.NewReader(body))
-	if err != nil {
-		t.Log("Error", err)
-	}
-
-	// create a test response recorder, which satisfies the requirements
-	// for a ResponseWriter
-	rr := httptest.NewRecorder()
-	defer req.Body.Close()
-
-	// call readJSON and check for an error
-	err = testApp.ReadJSON(rr, req, &decodedJSON)
-	if err != nil {
-		t.Error("failed to decode json", err)
-	}
-
-	// create json with two json entries
-	badJSON := `
-		{
-			"foo": "bar"
+		// declare a variable to read the decoded json into
+		var decodedJSON struct {
+			Foo string `json:"foo"`
 		}
-		{
-			"alpha": "beta"
-		}`
 
-	// create a request with the body
-	req, err = http.NewRequest("POST", "/", bytes.NewReader([]byte(badJSON)))
-	if err != nil {
-		t.Log("Error", err)
-	}
+		// create a request with the body
+		req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(e.json)))
+		if err != nil {
+			t.Log("Error", err)
+		}
 
-	err = testApp.ReadJSON(rr, req, &decodedJSON)
-	if err == nil {
-		t.Error("did not get an error with bad json")
+		// create a test response recorder, which satisfies the requirements
+		// for a ResponseWriter
+		rr := httptest.NewRecorder()
+
+		// call readJSON and check for an error
+		err = testApp.ReadJSON(rr, req, &decodedJSON)
+		if e.errorExpected && err == nil {
+			t.Errorf("%s: error expected, but none received", e.name)
+		}
+
+		if !e.errorExpected && err != nil {
+			t.Errorf("%s: error not expected, but one received: %s \n%s", e.name, err.Error(), e.json)
+		}
+		req.Body.Close()
 	}
 }
 
