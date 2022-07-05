@@ -189,9 +189,11 @@ func TestTools_DownloadStaticFile(t *testing.T) {
 var uploadTests = []struct {
 	name          string
 	allowedTypes  []string
+	renameFile    bool
 	errorExpected bool
 }{
-	{name: "allowed", allowedTypes: []string{"image/jpeg", "image/png"}, errorExpected: false},
+	{name: "allowed", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false},
+	{name: "allowed", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false},
 	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true},
 }
 
@@ -235,7 +237,7 @@ func TestTools_UploadOneFile(t *testing.T) {
 		var testTools Tools
 		testTools.AllowedFileTypes = e.allowedTypes
 
-		uploadedFile, err := testTools.UploadOneFile(request, "./testdata/uploads/")
+		uploadedFile, err := testTools.UploadOneFile(request, "./testdata/uploads/", e.renameFile)
 		if err != nil && !e.errorExpected {
 			t.Error(err)
 		}
