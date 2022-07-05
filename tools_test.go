@@ -97,10 +97,13 @@ func Test_ReadJSON(t *testing.T) {
 
 		// call readJSON and check for an error
 		err = testApp.ReadJSON(rr, req, &decodedJSON)
+
+		// if we expect an error, but do not get one, something went wrong
 		if e.errorExpected && err == nil {
 			t.Errorf("%s: error expected, but none received", e.name)
 		}
 
+		// if we do not expect an error, but get one, something went wrong
 		if !e.errorExpected && err != nil {
 			t.Errorf("%s: error not expected, but one received: %s \n%s", e.name, err.Error(), e.json)
 		}
