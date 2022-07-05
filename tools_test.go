@@ -257,6 +257,8 @@ func TestTools_UploadOneFile(t *testing.T) {
 		if !e.errorExpected && err != nil {
 			t.Errorf("%s: error expected, but none received", e.name)
 		}
+
+		// we're running table tests, so have to use a waitgroup
 		wg.Wait()
 	}
 }
