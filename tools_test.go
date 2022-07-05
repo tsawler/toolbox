@@ -70,7 +70,7 @@ var jsonTests = []struct {
 	{name: "unknown field in json", json: `{"fooo": "bar"}`, errorExpected: true, maxSize: 1024},
 	{name: "missing field name", json: `{jack: "bar"}`, errorExpected: true, maxSize: 1024},
 	{name: "file too large", json: `{"foo": "bar"}`, errorExpected: true, maxSize: 5},
-	{name: "not json", json: `Hello, world`, errorExpected: true, maxSize: 5},
+	{name: "not json", json: `Hello, world`, errorExpected: true, maxSize: 1024},
 }
 
 func Test_ReadJSON(t *testing.T) {
