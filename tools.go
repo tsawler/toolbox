@@ -72,7 +72,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 			return fmt.Errorf("body must not be larger than %d bytes", maxBytes)
 
 		case errors.As(err, &invalidUnmarshalError):
-			panic(err)
+			return fmt.Errorf("error unmarshalling json: %s", err.Error())
 
 		default:
 			return err
