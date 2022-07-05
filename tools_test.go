@@ -195,8 +195,8 @@ var uploadTests = []struct {
 	renameFile    bool
 	errorExpected bool
 }{
-	{name: "allowed", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false},
-	{name: "allowed", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false},
+	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false},
+	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false},
 	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true},
 }
 
