@@ -200,7 +200,7 @@ var uploadTests = []struct {
 	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true},
 }
 
-func TestTools_UploadOneFile(t *testing.T) {
+func TestTools_UploadFiles(t *testing.T) {
 	for _, e := range uploadTests {
 		// set up a pipe to avoid buffering
 		pr, pw := io.Pipe()
@@ -240,18 +240,18 @@ func TestTools_UploadOneFile(t *testing.T) {
 		var testTools Tools
 		testTools.AllowedFileTypes = e.allowedTypes
 
-		uploadedFile, err := testTools.UploadOneFile(request, "./testdata/uploads/", e.renameFile)
+		uploadedFiles, err := testTools.UploadFiles(request, "./testdata/uploads/", e.renameFile)
 		if err != nil && !e.errorExpected {
 			t.Error(err)
 		}
 
 		if !e.errorExpected {
-			if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFile.NewFileName)); os.IsNotExist(err) {
+			if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles[0].NewFileName)); os.IsNotExist(err) {
 				t.Errorf("%s: expected file to exist: %s", e.name, err.Error())
 			}
 
 			// clean up
-			_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFile.NewFileName))
+			_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles[0].NewFileName))
 		}
 
 		if !e.errorExpected && err != nil {
