@@ -190,7 +190,7 @@ func main() {
 			return
 		}
 
-		// the returned variable, files, will bea slice of the type toolbox.UploadedFile
+		// the returned variable, files, will be a slice of the type toolbox.UploadedFile
 		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", files[0].NewFileName, files[0].OriginalFileName, files[0].FileSize)))
 	})
 
