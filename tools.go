@@ -137,31 +137,30 @@ func (t *Tools) RandomString(n int) string {
 	return string(s)
 }
 
-// PushJSONToRemote posts arbitrary json to some url, and returns error,
-// if any, as well as the response status code
-// TODO: capture returned JSON and send it back to the client
-func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface{}) (int, error) {
+// PushJSONToRemote posts arbitrary json to some url, and returns the response, the response
+// status code, and error, if any
+func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface{}) (*http.Response, int, error) {
 	// create json we'll send
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return 0, err
+		return nil, 0, err
 	}
 
 	// build the request and set header
 	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return 0, err
+		return nil, 0, err
 	}
 	request.Header.Set("Content-Type", "application/json")
 
 	// call the uri
 	response, err := client.Do(request)
 	if err != nil {
-		return 0, err
+		return nil, 0, err
 	}
 	defer response.Body.Close()
 
-	return response.StatusCode, nil
+	return response, response.StatusCode, nil
 }
 
 // DownloadStaticFile downloads a file, and tries to force the browser to avoid displaying it in
