@@ -191,7 +191,8 @@ func main() {
 		}
 
 		// the returned variable, files, will be a slice of the type toolbox.UploadedFile
-		_, _ = w.Write([]byte(fmt.Sprintf("Uploaded %d file(s) to the uploads folder", len(files))))	})
+		_, _ = w.Write([]byte(fmt.Sprintf("Uploaded %d file(s) to the uploads folder", len(files))))	
+	})
 
 	// print a log message
 	log.Println("Starting server on port 8080")
