@@ -224,63 +224,68 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 
 	for _, fHeaders := range r.MultipartForm.File {
 		for _, hdr := range fHeaders {
-			infile, err := hdr.Open()
-			if err != nil {
-				return nil, err
-			}
-			defer infile.Close()
-
-			buff := make([]byte, 512)
-			_, err = infile.Read(buff)
-			if err != nil {
-				return nil, err
-			}
-
-			allowed := false
-			filetype := http.DetectContentType(buff)
-			if len(t.AllowedFileTypes) > 0 {
-				for _, x := range t.AllowedFileTypes {
-					if strings.EqualFold(filetype, x) {
-						allowed = true
-					}
-				}
-			} else {
-				allowed = true
-			}
-
-			if !allowed {
-				return nil, errors.New("the uploaded file type is not permitted")
-			}
-
-			_, err = infile.Seek(0, 0)
-			if err != nil {
-				fmt.Println(err)
-				return nil, err
-			}
-
-			if renameFile {
-				uploadedFile.NewFileName = t.RandomString(25) + filepath.Ext(hdr.Filename)
-			} else {
-				uploadedFile.NewFileName = hdr.Filename
-			}
-			uploadedFile.OriginalFileName = hdr.Filename
-
-			var outfile *os.File
-			defer outfile.Close()
-
-			if outfile, err = os.Create(filepath.Join(uploadDir, uploadedFile.NewFileName)); nil != err {
-				return nil, err
-			} else {
-				fileSize, err := io.Copy(outfile, infile)
+			uploadedFiles, err = func() ([]*UploadedFile, error) {
+				infile, err := hdr.Open()
 				if err != nil {
 					return nil, err
 				}
-				uploadedFile.FileSize = fileSize
+				defer infile.Close()
+
+				buff := make([]byte, 512)
+				_, err = infile.Read(buff)
+				if err != nil {
+					return nil, err
+				}
+
+				allowed := false
+				filetype := http.DetectContentType(buff)
+				if len(t.AllowedFileTypes) > 0 {
+					for _, x := range t.AllowedFileTypes {
+						if strings.EqualFold(filetype, x) {
+							allowed = true
+						}
+					}
+				} else {
+					allowed = true
+				}
+
+				if !allowed {
+					return nil, errors.New("the uploaded file type is not permitted")
+				}
+
+				_, err = infile.Seek(0, 0)
+				if err != nil {
+					fmt.Println(err)
+					return nil, err
+				}
+
+				if renameFile {
+					uploadedFile.NewFileName = t.RandomString(25) + filepath.Ext(hdr.Filename)
+				} else {
+					uploadedFile.NewFileName = hdr.Filename
+				}
+				uploadedFile.OriginalFileName = hdr.Filename
+
+				var outfile *os.File
+				defer outfile.Close()
+
+				if outfile, err = os.Create(filepath.Join(uploadDir, uploadedFile.NewFileName)); nil != err {
+					return nil, err
+				} else {
+					fileSize, err := io.Copy(outfile, infile)
+					if err != nil {
+						return nil, err
+					}
+					uploadedFile.FileSize = fileSize
+				}
+
+				uploadedFiles = append(uploadedFiles, &uploadedFile)
+				return uploadedFiles, nil
+			}()
+			if err != nil {
+				return uploadedFiles, err
 			}
-
-			uploadedFiles = append(uploadedFiles, &uploadedFile)
 		}
-
 	}
 	return uploadedFiles, nil
 }
