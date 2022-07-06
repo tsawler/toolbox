@@ -139,6 +139,7 @@ func (t *Tools) RandomString(n int) string {
 
 // PushJSONToRemote posts arbitrary json to some url, and returns error,
 // if any, as well as the response status code
+// TODO: capture returned JSON and send it back to the client
 func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface{}) (int, error) {
 	// create json we'll send
 	jsonData, err := json.Marshal(data)
