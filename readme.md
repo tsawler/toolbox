@@ -177,13 +177,13 @@ func main() {
 			MaxFileSize:      1024 * 1024 * 1024,
 			AllowedFileTypes: []string{"image/gif", "image/png", "image/jpeg"},
 		}
-
-		_ = t.CreateDirIfNotExist("./uploads")
+		
 
 		// Upload the file(s). Note that if you don't want the files to be renamed,
 		// you can add an optional final parameter -- true will rename the files (the default)
 		// and false will preserve the original filenames, for example:
 		// files, err := t.UploadFiles(r, "./uploads", false)
+		// n.b.: if the "./uploads" directory does not exist, we attemp to create it.
 		files, err := t.UploadFiles(r, "./uploads")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
