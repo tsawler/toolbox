@@ -180,18 +180,18 @@ func main() {
 
 		_ = t.CreateDirIfNotExist("./uploads")
 
-		// upload the file. Note that if you don't want the file to be renamed,
-		// you can add an optional final parameter -- true will rename the file (the default)
-		// and false will preserve the original filename, for example:
-		// u, err := t.UploadOneFile(r, "./uploads", false)
-		u, err := t.UploadOneFile(r, "./uploads")
+		// Upload the file(s). Note that if you don't want the files to be renamed,
+		// you can add an optional final parameter -- true will rename the files (the default)
+		// and false will preserve the original filenames, for example:
+		// files, err := t.UploadFiles(r, "./uploads", false)
+		files, err := t.UploadFiles(r, "./uploads")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		// the returned variable, u, will have the type toolbox.UploadedFile
-		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", u.NewFileName, u.OriginalFileName, u.FileSize)))
+		// the returned variable, files, will bea slice of the type toolbox.UploadedFile
+		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", files[0].NewFileName, files[0].OriginalFileName, files[0].FileSize)))
 	})
 
 	// print a log message
