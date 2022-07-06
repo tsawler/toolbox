@@ -22,7 +22,7 @@ type Tools struct {
 	MaxJSONSize        int      // maximum size of JSON file we'll process
 	MaxFileSize        int      // maximum size of uploaded files in bytes
 	AllowedFileTypes   []string // allowed file types for upload (e.g. image/jpeg)
-	AllowUnknownFields bool     // if set to true, we allow unknown fields in JSON
+	AllowUnknownFields bool     // if set to true, allow unknown fields in JSON
 }
 
 // JSONResponse is the type used for sending JSON around
