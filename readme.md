@@ -183,7 +183,7 @@ func main() {
 		// you can add an optional final parameter -- true will rename the files (the default)
 		// and false will preserve the original filenames, for example:
 		// files, err := t.UploadFiles(r, "./uploads", false)
-		// n.b.: if the "./uploads" directory does not exist, we attemp to create it.
+		// n.b.: if the "./uploads" directory does not exist, we attempt to create it.
 		files, err := t.UploadFiles(r, "./uploads")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
