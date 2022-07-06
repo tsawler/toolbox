@@ -44,12 +44,12 @@ func TestTools_PushJSONToRemote(t *testing.T) {
 		}
 	})
 
-	var testApp Tools
+	var testTools Tools
 	var foo struct {
 		Bar string `json:"bar"`
 	}
 	foo.Bar = "bar"
-	_, _, err := testApp.PushJSONToRemote(client, "http://example.com/some/path", foo)
+	_, _, err := testTools.PushJSONToRemote(client, "http://example.com/some/path", foo)
 	if err != nil {
 		t.Error("failed to call remote url", err)
 	}
@@ -76,14 +76,14 @@ var jsonTests = []struct {
 }
 
 func Test_ReadJSON(t *testing.T) {
-	var testApp Tools
+	var testTools Tools
 
 	for _, e := range jsonTests {
 		// set max file size
-		testApp.MaxJSONSize = e.maxSize
+		testTools.MaxJSONSize = e.maxSize
 
 		// allow/disallow unknown fields
-		testApp.AllowUnknownFields = e.allowUnknown
+		testTools.AllowUnknownFields = e.allowUnknown
 
 		// declare a variable to read the decoded json into
 		var decodedJSON struct {
@@ -101,7 +101,7 @@ func Test_ReadJSON(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		// call readJSON and check for an error
-		err = testApp.ReadJSON(rr, req, &decodedJSON)
+		err = testTools.ReadJSON(rr, req, &decodedJSON)
 
 		// if we expect an error, but do not get one, something went wrong
 		if e.errorExpected && err == nil {
@@ -117,7 +117,7 @@ func Test_ReadJSON(t *testing.T) {
 }
 
 func TestTools_WriteJSON(t *testing.T) {
-	var testApp Tools
+	var testTools Tools
 
 	rr := httptest.NewRecorder()
 	payload := JSONResponse{
@@ -127,17 +127,17 @@ func TestTools_WriteJSON(t *testing.T) {
 
 	headers := make(http.Header)
 	headers.Add("FOO", "BAR")
-	err := testApp.WriteJSON(rr, http.StatusOK, payload, headers)
+	err := testTools.WriteJSON(rr, http.StatusOK, payload, headers)
 	if err != nil {
 		t.Errorf("failed to write JSON: %v", err)
 	}
 }
 
 func TestTools_ErrorJSON(t *testing.T) {
-	var testApp Tools
+	var testTools Tools
 
 	rr := httptest.NewRecorder()
-	err := testApp.ErrorJSON(rr, errors.New("some error"))
+	err := testTools.ErrorJSON(rr, errors.New("some error"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -154,16 +154,16 @@ func TestTools_ErrorJSON(t *testing.T) {
 	}
 
 	// test with status
-	err = testApp.ErrorJSON(rr, errors.New("another error"), http.StatusServiceUnavailable)
+	err = testTools.ErrorJSON(rr, errors.New("another error"), http.StatusServiceUnavailable)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestTools_RandomString(t *testing.T) {
-	var testApp Tools
+	var testTools Tools
 
-	s := testApp.RandomString(10)
+	s := testTools.RandomString(10)
 	if len(s) != 10 {
 		t.Error("wrong length random string returned")
 	}
@@ -173,9 +173,9 @@ func TestTools_DownloadStaticFile(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 
-	var testApp Tools
+	var testTools Tools
 
-	testApp.DownloadStaticFile(rr, req, "./testdata", "tgg.jpg", "gatsby.jpg")
+	testTools.DownloadStaticFile(rr, req, "./testdata", "tgg.jpg", "gatsby.jpg")
 
 	res := rr.Result()
 	defer res.Body.Close()
