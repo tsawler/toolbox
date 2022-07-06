@@ -179,16 +179,18 @@ type UploadedFile struct {
 	FileSize         int64
 }
 
-// UploadOneFile uploads one file to a specified directory, and gives it a random name.
-// It returns the newly named file, the original file name, and potentially an error.
-// If the optional last parameter is set to true, then we will not rename the file, but
-// will use the original file name.
-func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool) (*UploadedFile, error) {
-	// check to see if we are renaming the file with the optional last parameter
+// UploadFiles uploads one or more file to a specified directory, and gives the files a random name.
+// It returns a slice containing the newly named files, the original file names, the size of the files,
+// and potentially an error. If the optional last parameter is set to true, then we will not rename
+// the files, but will use the original file names.
+func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) ([]*UploadedFile, error) {
+	// check to see if we are renaming the uploadedFiles with the optional last parameter
 	renameFile := true
 	if len(rename) > 0 {
 		renameFile = rename[0]
 	}
+
+	var uploadedFiles []*UploadedFile
 
 	// parse the form so we have access to the file
 	err := r.ParseMultipartForm(int64(t.MaxFileSize))
@@ -252,10 +254,12 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool)
 				}
 				uploadedFile.FileSize = fileSize
 			}
+
+			uploadedFiles = append(uploadedFiles, &uploadedFile)
 		}
 
 	}
-	return &uploadedFile, nil
+	return uploadedFiles, nil
 }
 
 // CreateDirIfNotExist creates a directory, and all necessary parent directories, if it does not exist.
