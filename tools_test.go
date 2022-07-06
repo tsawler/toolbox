@@ -49,7 +49,7 @@ func TestTools_PushJSONToRemote(t *testing.T) {
 		Bar string `json:"bar"`
 	}
 	foo.Bar = "bar"
-	_, err := testApp.PushJSONToRemote(client, "http://example.com/some/path", foo)
+	_, _, err := testApp.PushJSONToRemote(client, "http://example.com/some/path", foo)
 	if err != nil {
 		t.Error("failed to call remote url", err)
 	}
