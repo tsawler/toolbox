@@ -19,9 +19,10 @@ const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 // Tools is the type for this package. Create a variable of this type and you have access
 // to all the methods with the receiver type *Tools.
 type Tools struct {
-	MaxJSONSize      int      // maximum siz of JSON file we'll process
-	MaxFileSize      int      // maximum size of uploaded files in bytes
-	AllowedFileTypes []string // allowed file types for upload (e.g. image/jpeg)
+	MaxJSONSize        int      // maximum siz of JSON file we'll process
+	MaxFileSize        int      // maximum size of uploaded files in bytes
+	AllowedFileTypes   []string // allowed file types for upload (e.g. image/jpeg)
+	AllowUnknownFields bool     // if set to true, we allow unknown fields in JSON
 }
 
 // JSONResponse is the type used for sending JSON around
@@ -40,7 +41,11 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
+
+	// should we allow unknown fields?
+	if !t.AllowUnknownFields {
+		dec.DisallowUnknownFields()
+	}
 
 	err := dec.Decode(data)
 	if err != nil {
