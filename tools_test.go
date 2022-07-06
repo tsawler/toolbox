@@ -81,6 +81,7 @@ func Test_ReadJSON(t *testing.T) {
 	for _, e := range jsonTests {
 		// set max file size
 		testApp.MaxJSONSize = e.maxSize
+
 		// allow/disallow unknown fields
 		testApp.AllowUnknownFields = e.allowUnknown
 
