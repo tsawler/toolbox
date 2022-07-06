@@ -136,7 +136,7 @@ To upload a file to a specific directory, with this for HTML:
 
                 <div class="mb-3">
                     <label for="fileUpload" class="form-label">Choose a file...</label>
-                    <input class="form-control" type="file" id="fileUpload" name="uploaded">
+                    <input class="form-control" type="file" id="fileUpload" name="uploaded" multiple>
                 </div>
 
 
@@ -191,8 +191,7 @@ func main() {
 		}
 
 		// the returned variable, files, will be a slice of the type toolbox.UploadedFile
-		w.Write([]byte(fmt.Sprintf("New file name: %s, Original file name: %s, size: %d", files[0].NewFileName, files[0].OriginalFileName, files[0].FileSize)))
-	})
+		_, _ = w.Write([]byte(fmt.Sprintf("Uploaded %d file(s) to the uploads folder", len(files))))	})
 
 	// print a log message
 	log.Println("Starting server on port 8080")
