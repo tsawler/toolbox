@@ -201,3 +201,177 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 ```
+
+### Calling a Remote API
+
+To make a JSON post to a remote URI, with this html:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+          crossorigin="anonymous">
+
+    <title>JSON functionality</title>
+    <style>
+        label{
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="mt-2">JSON functionality</h1>
+            <hr>
+
+            <form>
+
+
+                <div class="mb-3">
+                    <label for="json" class="form-label">JSON to Send:</label>
+                    <textarea style="font-family: Courier,sans-serif" class="form-control"
+                              id="json" name="json" rows="5">
+{
+    "action": "some action",
+    "message": "some message"
+}
+                    </textarea>
+                </div>
+
+
+                <a id="pushBtn" class="btn btn-primary">Push JSON</a>
+            </form>
+            <hr>
+            <p><strong>Response from server:</strong></p>
+            <div style="outline: 1px solid silver; padding: 2em">
+                <pre id="response">No response from server yet...</pre>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let pushBtn = document.getElementById("pushBtn");
+    let jsonPayload = document.getElementById("json")
+    let serverResponse = document.getElementById("response");
+
+    pushBtn.addEventListener("click", function () {
+        console.log("clicked, json is", jsonPayload.value);
+
+        const payload = jsonPayload.value;
+        const headers = new Headers();
+
+        const body = {
+            method: 'POST',
+            body: payload,
+            headers: headers,
+        }
+
+        headers.append("Content-Type", "application/json");
+
+        fetch("http://localhost:8081/receive-post", body)
+            .then((response) => response.json())
+            .then((data) => {
+                serverResponse.innerHTML = JSON.stringify(data, undefined, 4);
+            })
+            .catch((error) => {
+                serverResponse.innerHTML = "<br><br>Error: " + error;
+            })
+    })
+</script>
+</body>
+</html>
+```
+
+You can use this kind of Go code:
+
+```go
+package main
+
+import (
+	"github.com/tsawler/toolbox"
+	"log"
+	"net/http"
+)
+
+func main() {
+	// create a default server mux
+	mux := http.NewServeMux()
+
+	// register routes
+	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("."))))
+	mux.HandleFunc("/receive-post", receivePost)
+	mux.HandleFunc("/remote-service", remoteService)
+
+	// print a log message
+	log.Println("Starting server on port 8081")
+
+	// start the server
+	err := http.ListenAndServe(":8081", mux)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// RequestPayload describes the JSON that this service accepts as an HTTP Post request
+type RequestPayload struct {
+	Action  string `json:"action"`
+	Message string `json:"message"`
+}
+
+// ResponsePayload is the structure used for sending a JSON response
+type ResponsePayload struct {
+	Message    string `json:"message"`
+	StatusCode int    `json:"status_code,omitempty"`
+}
+
+func receivePost(w http.ResponseWriter, r *http.Request) {
+	// get the posted json and decode it
+	var requestPayload RequestPayload
+	var t toolbox.Tools
+
+	err := t.ReadJSON(w, r, &requestPayload)
+	if err != nil {
+		_ = t.ErrorJSON(w, err)
+		return
+	}
+
+	// Call remote service. Note that we are ignoring the first return parameter, which is the 
+	// entire response from the remote service, but you have access to it if you need it.
+	_, statusCode, err := t.PushJSONToRemote("http://localhost:8081/remote-service", requestPayload)
+	if err != nil {
+		_ = t.ErrorJSON(w, err)
+		return
+	}
+
+	// send response
+	payload := ResponsePayload{
+		Message:    "hit the service ok",
+		StatusCode: statusCode,
+	}
+
+	err = t.WriteJSON(w, http.StatusAccepted, payload)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+// remoteService just simulates calling some remote API
+func remoteService(w http.ResponseWriter, r *http.Request) {
+	payload := ResponsePayload{
+		Message: "OK",
+	}
+	var t toolbox.Tools
+
+	_ = t.WriteJSON(w, http.StatusOK, payload)
+}
+```
