@@ -144,12 +144,19 @@ func (t *Tools) RandomString(n int) string {
 }
 
 // PushJSONToRemote posts arbitrary json to some url, and returns the response, the response
-// status code, and error, if any
-func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface{}) (*http.Response, int, error) {
+// status code, and error, if any. The final parameter, client, is optional, and will default
+// to the standard http.Client. It exists to make testing possible without an active remote
+// url.
+func (t *Tools) PushJSONToRemote(uri string, data interface{}, client ...*http.Client) (*http.Response, int, error) {
 	// create json we'll send
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return nil, 0, err
+	}
+
+	httpClient := &http.Client{}
+	if len(client) > 0 {
+		httpClient = client[0]
 	}
 
 	// build the request and set header
@@ -160,7 +167,7 @@ func (t *Tools) PushJSONToRemote(client *http.Client, uri string, data interface
 	request.Header.Set("Content-Type", "application/json")
 
 	// call the uri
-	response, err := client.Do(request)
+	response, err := httpClient.Do(request)
 	if err != nil {
 		return nil, 0, err
 	}
