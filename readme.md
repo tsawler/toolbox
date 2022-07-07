@@ -386,20 +386,27 @@ original string with a hyphen where spaces would be. Example:
 package main
 
 import (
+	"fmt"
 	"github.com/tsawler/toolbox"
-	"log"
 )
 
 func main() {
 	toSlugify := "hello, world! These are unsafe chars: こんにちは世界*!&^%"
-	log.Println("To slugify:", toSlugify)
+	fmt.Println("To slugify:", toSlugify)
 	var tools toolbox.Tools
 
 	slug, err := tools.Slugify(toSlugify)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
-	log.Println("Slugified:", slug)
+	fmt.Println("Slugified:", slug)
 }
+```
+
+Output from this is:
+
+```
+To slugify: hello, world! These are unsafe chars: こんにちは世界*!&^%
+Slugified: hello-world-these-are-unsafe-chars
 ```
