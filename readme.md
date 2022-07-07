@@ -345,7 +345,8 @@ func receivePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// call remote service
+	// Call remote service. Note that we are ignoring the first return parameter, which is the 
+	// entire response from the remote service, but you have access to it if you need it.
 	_, statusCode, err := t.PushJSONToRemote("http://localhost:8081/remote-service", requestPayload)
 	if err != nil {
 		_ = t.ErrorJSON(w, err)
