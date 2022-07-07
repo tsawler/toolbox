@@ -17,6 +17,7 @@ The included tools are:
 - Get a random string of length n
 - Post JSON to a remote service 
 - Create a directory, including all parent directories, if it does not already exist
+- Create a URL safe slug from a string
 
 **Not for production -- used in a course.**
 
@@ -373,5 +374,32 @@ func remoteService(w http.ResponseWriter, r *http.Request) {
 	var t toolbox.Tools
 
 	_ = t.WriteJSON(w, http.StatusOK, payload)
+}
+```
+
+### Create a slug from a string
+
+To slugify a string, we simply remove all non URL safe characters and return the
+original string with a hyphen where spaces would be. Example:
+
+```go
+package main
+
+import (
+	"github.com/tsawler/toolbox"
+	"log"
+)
+
+func main() {
+	toSlugify := "hello, world! These are unsafe chars: こんにちは世界*!&^%"
+	log.Println("To slugify:", toSlugify)
+	var tools toolbox.Tools
+
+	slug, err := tools.Slugify(toSlugify)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println("Slugified:", slug)
 }
 ```
