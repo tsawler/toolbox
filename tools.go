@@ -16,7 +16,7 @@ import (
 
 const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
 
-// Tools is the type for this package. Create a variable of this type and you have access
+// Tools is the type for this package. Create a variable of this type, and you have access
 // to all the methods with the receiver type *Tools.
 type Tools struct {
 	MaxJSONSize        int      // maximum size of JSON file we'll process
