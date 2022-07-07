@@ -135,7 +135,7 @@ To upload a file to a specific directory, with this for HTML:
             <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
 
                 <div class="mb-3">
-                    <label for="fileUpload" class="form-label">Choose a file...</label>
+                    <label for="fileUpload" class="form-label">Choose file(s) to upload...</label>
                     <input class="form-control" type="file" id="fileUpload" name="uploaded" multiple>
                 </div>
 
