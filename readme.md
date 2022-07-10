@@ -266,8 +266,6 @@ To make a JSON post to a remote URI, with this html:
     let serverResponse = document.getElementById("response");
 
     pushBtn.addEventListener("click", function () {
-        console.log("clicked, json is", jsonPayload.value);
-
         const payload = jsonPayload.value;
         const headers = new Headers();
 
