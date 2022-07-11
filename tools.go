@@ -228,6 +228,11 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 		return nil, err
 	}
 
+	// sanity check on t.MaxFileSize
+	if t.MaxFileSize == 0 {
+		t.MaxFileSize = 1024 * 1024 * 5 // 5 megabytes
+	}
+
 	// parse the form so we have access to the file
 	err = r.ParseMultipartForm(int64(t.MaxFileSize))
 	if err != nil {
