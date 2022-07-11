@@ -19,8 +19,6 @@ The included tools are:
 - Create a directory, including all parent directories, if it does not already exist
 - Create a URL safe slug from a string
 
-**Not for production -- used in a course.**
-
 ## Installation
 
 `go get -u github.com/tsawler/toolbox`
