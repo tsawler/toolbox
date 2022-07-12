@@ -117,6 +117,7 @@ func Test_ReadJSON(t *testing.T) {
 }
 
 func TestTools_WriteJSON(t *testing.T) {
+	// create a variable of type toolbox.Tools, and just use the defaults.
 	var testTools Tools
 
 	rr := httptest.NewRecorder()
