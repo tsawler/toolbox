@@ -116,6 +116,32 @@ func Test_ReadJSON(t *testing.T) {
 	}
 }
 
+func TestTools_ReadJSONBadMarshal(t *testing.T) {
+	// set max file size
+	var testTools Tools
+
+	// create a request with the body
+	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(`{"foo": "bar"}`)))
+	if err != nil {
+		t.Log("Error", err)
+	}
+
+	// create a test response recorder, which satisfies the requirements
+	// for a ResponseWriter
+	rr := httptest.NewRecorder()
+
+	// call readJSON and check for an error
+	err = testTools.ReadJSON(rr, req, nil)
+
+	// if we expect an error, but do not get one, something went wrong
+	if err == nil {
+		t.Error("error expected, but none received")
+	}
+
+	req.Body.Close()
+
+}
+
 func TestTools_WriteJSON(t *testing.T) {
 	// create a variable of type toolbox.Tools, and just use the defaults.
 	var testTools Tools
