@@ -65,6 +65,7 @@ var jsonTests = []struct {
 	{name: "good json", json: `{"foo": "bar"}`, errorExpected: false, maxSize: 1024, allowUnknown: false},
 	{name: "badly formatted json", json: `{"foo":"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "incorrect type", json: `{"foo": 1}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
+	{name: "incorrect type", json: `{1: 1}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "two json files", json: `{"foo": "bar"}{"alpha": "beta"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "empty body", json: ``, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "syntax error in json", json: `{"foo": 1"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
@@ -114,6 +115,32 @@ func Test_ReadJSON(t *testing.T) {
 		}
 		req.Body.Close()
 	}
+}
+
+func TestTools_ReadJSONAndMarshal(t *testing.T) {
+	// set max file size
+	var testTools Tools
+
+	// create a request with the body
+	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(`{"foo": "bar"}`)))
+	if err != nil {
+		t.Log("Error", err)
+	}
+
+	// create a test response recorder, which satisfies the requirements
+	// for a ResponseWriter
+	rr := httptest.NewRecorder()
+
+	// call readJSON and check for an error
+	err = testTools.ReadJSON(rr, req, nil)
+
+	// if we expect an error, but do not get one, something went wrong
+	if err == nil {
+		t.Error("error expected, but none received")
+	}
+
+	req.Body.Close()
+
 }
 
 func TestTools_WriteJSON(t *testing.T) {
