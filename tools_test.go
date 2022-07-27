@@ -65,6 +65,7 @@ var jsonTests = []struct {
 	{name: "good json", json: `{"foo": "bar"}`, errorExpected: false, maxSize: 1024, allowUnknown: false},
 	{name: "badly formatted json", json: `{"foo":"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "incorrect type", json: `{"foo": 1}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
+	{name: "incorrect type", json: `{1: 1}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "two json files", json: `{"foo": "bar"}{"alpha": "beta"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "empty body", json: ``, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "syntax error in json", json: `{"foo": 1"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
@@ -116,7 +117,7 @@ func Test_ReadJSON(t *testing.T) {
 	}
 }
 
-func TestTools_ReadJSONBadMarshal(t *testing.T) {
+func TestTools_ReadJSONAndMarshal(t *testing.T) {
 	// set max file size
 	var testTools Tools
 
