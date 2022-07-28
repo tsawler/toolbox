@@ -100,12 +100,14 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 		return err
 	}
 
+	// if we have a value as the last parameter in the function call, then we are setting a custom header.
 	if len(headers) > 0 {
 		for key, value := range headers[0] {
 			w.Header()[key] = value
 		}
 	}
 
+	// set the content type and send respones
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_, err = w.Write(out)
