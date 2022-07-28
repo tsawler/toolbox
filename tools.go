@@ -107,7 +107,7 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 		}
 	}
 
-	// set the content type and send respones
+	// set the content type and send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_, err = w.Write(out)
