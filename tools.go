@@ -50,6 +50,8 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 		dec.DisallowUnknownFields()
 	}
 
+	// attempt to decode the data, and figure out what the error is, so as to send back a human readable
+	// response
 	err := dec.Decode(data)
 	if err != nil {
 		var syntaxError *json.SyntaxError
