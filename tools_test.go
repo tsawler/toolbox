@@ -131,10 +131,11 @@ func TestTools_ReadJSONAndMarshal(t *testing.T) {
 	// for a ResponseWriter
 	rr := httptest.NewRecorder()
 
-	// call readJSON and check for an error
+	// call readJSON and check for an error; since we are using nil for the final parameter,
+	// we should get an error
 	err = testTools.ReadJSON(rr, req, nil)
 
-	// if we expect an error, but do not get one, something went wrong
+	// we expect an error, but did not get one, so something went wrong
 	if err == nil {
 		t.Error("error expected, but none received")
 	}
