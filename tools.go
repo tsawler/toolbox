@@ -26,14 +26,14 @@ type Tools struct {
 	AllowUnknownFields bool     // if set to true, allow unknown fields in JSON
 }
 
-// JSONResponse is the type used for sending JSON around
+// JSONResponse is the type used for sending JSON around.
 type JSONResponse struct {
 	Error   bool        `json:"error"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// ReadJSON tries to read the body of a request and converts it into JSON
+// ReadJSON tries to read the body of a request and converts it into JSON.
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 
@@ -97,7 +97,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 	return nil
 }
 
-// WriteJSON takes a response status code and arbitrary data and writes a json response to the client
+// WriteJSON takes a response status code and arbitrary data and writes a json response to the client.
 func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := json.Marshal(data)
 	if err != nil {
@@ -123,7 +123,7 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 }
 
 // ErrorJSON takes an error, and optionally a response status code, and generates and sends
-// a json error response
+// a json error response.
 func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
@@ -327,7 +327,7 @@ func (t *Tools) CreateDirIfNotExist(path string) error {
 	return nil
 }
 
-// Slugify is a (very) simple means of creating a slug from a provided string
+// Slugify is a (very) simple means of creating a slug from a provided string.
 func (t *Tools) Slugify(s string) (string, error) {
 	if s == "" {
 		return "", errors.New("empty string not permitted")
