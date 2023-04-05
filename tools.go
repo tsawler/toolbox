@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -339,4 +340,29 @@ func (t *Tools) Slugify(s string) (string, error) {
 	}
 
 	return slug, nil
+}
+
+// WriteXML takes a response status code and arbitrary data and writes a json response to the client.
+func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
+	out, err := xml.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	// if we have a value as the last parameter in the function call, then we are setting a custom header.
+	if len(headers) > 0 {
+		for key, value := range headers[0] {
+			w.Header()[key] = value
+		}
+	}
+
+	// set the content type and send response
+	w.Header().Set("Content-Type", "application/xml")
+	w.WriteHeader(status)
+	_, err = w.Write(out)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
