@@ -388,3 +388,21 @@ func TestTools_Slugify(t *testing.T) {
 		}
 	}
 }
+
+func TestTools_WriteXML(t *testing.T) {
+	// create a variable of type toolbox.Tools, and just use the defaults.
+	var testTools Tools
+
+	rr := httptest.NewRecorder()
+	payload := XMLResponse{
+		Error:   false,
+		Message: "foo",
+	}
+
+	headers := make(http.Header)
+	headers.Add("FOO", "BAR")
+	err := testTools.WriteXML(rr, http.StatusOK, payload, headers)
+	if err != nil {
+		t.Errorf("failed to write XML: %v", err)
+	}
+}
