@@ -406,3 +406,44 @@ func TestTools_WriteXML(t *testing.T) {
 		t.Errorf("failed to write XML: %v", err)
 	}
 }
+
+func TestTools_ReadXML(t *testing.T) {
+	// create a variable of type toolbox.Tools, and just use the defaults.
+	var tools Tools
+
+	xmlPayload := `
+		<?xml version="1.0" encoding="UTF-8"?>
+		<note>
+		  <to>John Smith</to>
+		  <from>Jane Jones</from>
+		  <heading>Reminder</heading>
+		  <body>Buy some bread.</body>
+		</note>`
+
+	// create a request with the body
+	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(xmlPayload)))
+	if err != nil {
+		t.Log("Error", err)
+	}
+
+	// create a test response recorder, which satisfies the requirements
+	// for a ResponseWriter
+	rr := httptest.NewRecorder()
+
+	// call ReadXML and check for an error.
+	var note struct {
+		To      string `xml:"to"`
+		From    string `xml:"from"`
+		Heading string `xml:"heading"`
+		Body    string `xml:"body"`
+	}
+
+	err = tools.ReadXML(rr, req, &note)
+	if err != nil {
+		t.Error("error reading XML:", err)
+	}
+
+	if note.To != "John Smith" {
+		t.Errorf("wrong value in note; expected %s but got %s", "John Smith", note.To)
+	}
+}
