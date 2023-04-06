@@ -34,6 +34,13 @@ type JSONResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// XMLResponse is the type used for sending JSON around.
+type XMLResponse struct {
+	Error   bool        `xml:"error"`
+	Message string      `xml:"message"`
+	Data    interface{} `xml:"data,omitempty"`
+}
+
 // ReadJSON tries to read the body of a request and converts it into JSON.
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
@@ -342,7 +349,7 @@ func (t *Tools) Slugify(s string) (string, error) {
 	return slug, nil
 }
 
-// WriteXML takes a response status code and arbitrary data and writes a json response to the client.
+// WriteXML takes a response status code and arbitrary data and writes an XML response to the client.
 func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := xml.Marshal(data)
 	if err != nil {
