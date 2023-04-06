@@ -82,33 +82,33 @@ func Test_ReadJSON(t *testing.T) {
 		// set max file size
 		testTools.MaxJSONSize = e.maxSize
 
-		// allow/disallow unknown fields
+		// allow/disallow unknown fields.
 		testTools.AllowUnknownFields = e.allowUnknown
 
-		// declare a variable to read the decoded json into
+		// declare a variable to read the decoded json into.
 		var decodedJSON struct {
 			Foo string `json:"foo"`
 		}
 
-		// create a request with the body
+		// create a request with the body.
 		req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(e.json)))
 		if err != nil {
 			t.Log("Error", err)
 		}
 
 		// create a test response recorder, which satisfies the requirements
-		// for a ResponseWriter
+		// for a ResponseWriter.
 		rr := httptest.NewRecorder()
 
-		// call readJSON and check for an error
+		// call ReadJSON and check for an error.
 		err = testTools.ReadJSON(rr, req, &decodedJSON)
 
-		// if we expect an error, but do not get one, something went wrong
+		// if we expect an error, but do not get one, something went wrong.
 		if e.errorExpected && err == nil {
 			t.Errorf("%s: error expected, but none received", e.name)
 		}
 
-		// if we do not expect an error, but get one, something went wrong
+		// if we do not expect an error, but get one, something went wrong.
 		if !e.errorExpected && err != nil {
 			t.Errorf("%s: error not expected, but one received: %s \n%s", e.name, err.Error(), e.json)
 		}
