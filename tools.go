@@ -22,6 +22,7 @@ const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 // to all the exported methods with the receiver type *Tools.
 type Tools struct {
 	MaxJSONSize        int      // maximum size of JSON file we'll process
+	MaxXMLSize         int      // maximum size of XML file we'll process
 	MaxFileSize        int      // maximum size of uploaded files in bytes
 	AllowedFileTypes   []string // allowed file types for upload (e.g. image/jpeg)
 	AllowUnknownFields bool     // if set to true, allow unknown fields in JSON
@@ -41,11 +42,11 @@ type XMLResponse struct {
 	Data    interface{} `xml:"data,omitempty"`
 }
 
-// ReadJSON tries to read the body of a request and converts it into JSON.
+// ReadJSON tries to read the body of a request and converts it from JSON to a variable.
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 
-	// if MaxJSONSize is set, use that value instead of default
+	// if MaxJSONSize is set, use that value instead of default.
 	if t.MaxJSONSize != 0 {
 		maxBytes = t.MaxJSONSize
 	}
@@ -58,8 +59,8 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 		dec.DisallowUnknownFields()
 	}
 
-	// attempt to decode the data, and figure out what the error is, so as to send back a human readable
-	// response
+	// attempt to decode the data, and figure out what the error is, if any, to send back a human-readable
+	// response.
 	err := dec.Decode(data)
 	if err != nil {
 		var syntaxError *json.SyntaxError
@@ -369,6 +370,32 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 	_, err = w.Write(out)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ReadXML tries to read the body of an XML request.
+func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}) error {
+	maxBytes := 1024 * 1024 // one megabyte
+
+	// if MaxJSONSize is set, use that value instead of default
+	if t.MaxXMLSize != 0 {
+		maxBytes = t.MaxXMLSize
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+
+	dec := xml.NewDecoder(r.Body)
+
+	// attempt to decode the data
+	err := dec.Decode(data)
+	if err != nil {
+		return err
+	}
+
+	err = dec.Decode(&struct{}{})
+	if err != io.EOF {
+		return errors.New("body must only contain a single XML value")
 	}
 
 	return nil
