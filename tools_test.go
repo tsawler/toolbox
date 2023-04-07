@@ -75,7 +75,7 @@ var jsonTests = []struct {
 	{name: "not json", json: `Hello, world`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 }
 
-func Test_ReadJSON(t *testing.T) {
+func TestTools_ReadJSON(t *testing.T) {
 
 	for _, e := range jsonTests {
 		var testTools Tools
@@ -143,22 +143,45 @@ func TestTools_ReadJSONAndMarshal(t *testing.T) {
 
 }
 
+var testWriteJSONData = []struct {
+	name          string
+	payload       any
+	errorExpected bool
+}{
+	{
+		name: "valid",
+		payload: JSONResponse{
+			Error:   false,
+			Message: "foo",
+		},
+		errorExpected: false,
+	},
+	{
+		name:          "invalid",
+		payload:       make(chan int),
+		errorExpected: true,
+	},
+}
+
 func TestTools_WriteJSON(t *testing.T) {
-	// create a variable of type toolbox.Tools, and just use the defaults.
-	var testTools Tools
 
-	rr := httptest.NewRecorder()
-	payload := JSONResponse{
-		Error:   false,
-		Message: "foo",
+	for _, e := range testWriteJSONData {
+		// create a variable of type toolbox.Tools, and just use the defaults.
+		var testTools Tools
+
+		rr := httptest.NewRecorder()
+
+		headers := make(http.Header)
+		headers.Add("FOO", "BAR")
+		err := testTools.WriteJSON(rr, http.StatusOK, e.payload, headers)
+		if err == nil && e.errorExpected {
+			t.Errorf("%s: expected error, but did not get one", e.name)
+		}
+		if err != nil && !e.errorExpected {
+			t.Errorf("%s: did not expect error, but got one: %v", e.name, err)
+		}
 	}
 
-	headers := make(http.Header)
-	headers.Add("FOO", "BAR")
-	err := testTools.WriteJSON(rr, http.StatusOK, payload, headers)
-	if err != nil {
-		t.Errorf("failed to write JSON: %v", err)
-	}
 }
 
 func TestTools_ErrorJSON(t *testing.T) {
