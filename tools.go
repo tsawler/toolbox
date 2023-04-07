@@ -123,10 +123,7 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 	// set the content type and send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_, err = w.Write(out)
-	if err != nil {
-		return err
-	}
+	_, _ = w.Write(out)
 
 	return nil
 }
@@ -371,10 +368,7 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 	// set the content type and send response
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(status)
-	_, err = w.Write(out)
-	if err != nil {
-		return err
-	}
+	_, _ = w.Write(out)
 
 	return nil
 }
