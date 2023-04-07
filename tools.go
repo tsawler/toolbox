@@ -35,7 +35,7 @@ type JSONResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// XMLResponse is the type used for sending JSON around.
+// XMLResponse is the type used for sending XML around.
 type XMLResponse struct {
 	Error   bool        `xml:"error"`
 	Message string      `xml:"message"`
