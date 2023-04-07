@@ -76,9 +76,9 @@ var jsonTests = []struct {
 }
 
 func Test_ReadJSON(t *testing.T) {
-	var testTools Tools
 
 	for _, e := range jsonTests {
+		var testTools Tools
 		// set max file size
 		testTools.MaxJSONSize = e.maxSize
 
@@ -407,43 +407,66 @@ func TestTools_WriteXML(t *testing.T) {
 	}
 }
 
+var xmlTests = []struct {
+	name          string
+	xml           string
+	maxBytes      int
+	errorExpected bool
+}{
+	{
+		name:          "good xml",
+		xml:           `<?xml version="1.0" encoding="UTF-8"?><note><to>John Smith</to><from>Jane Jones</from></note>`,
+		errorExpected: false,
+	},
+	{
+		name:          "badly formatted xml",
+		xml:           `<?xml version="1.0" encoding="UTF-8"?><note><xx>John Smith</to><from>Jane Jones</from></note>`,
+		errorExpected: true,
+	},
+	{
+		name:          "too big",
+		xml:           `<?xml version="1.0" encoding="UTF-8"?><note><to>John Smith</to><from>Jane Jones</from></note>`,
+		maxBytes:      10,
+		errorExpected: true,
+	},
+	{
+		name: "double xml",
+		xml: `<?xml version="1.0" encoding="UTF-8"?><note><to>John Smith</to><from>Jane Jones</from></note>
+						<?xml version="1.0" encoding="UTF-8"?><note><to>Luke Skywalker</to><from>R2D2</from></note>`,
+		errorExpected: true,
+	},
+}
+
 func TestTools_ReadXML(t *testing.T) {
-	// create a variable of type toolbox.Tools, and just use the defaults.
-	var tools Tools
 
-	xmlPayload := `
-		<?xml version="1.0" encoding="UTF-8"?>
-		<note>
-		  <to>John Smith</to>
-		  <from>Jane Jones</from>
-		  <heading>Reminder</heading>
-		  <body>Buy some bread.</body>
-		</note>`
+	for _, e := range xmlTests {
+		// create a variable of type toolbox.Tools, and just use the defaults.
+		var tools Tools
 
-	// create a request with the body
-	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(xmlPayload)))
-	if err != nil {
-		t.Log("Error", err)
-	}
+		if e.maxBytes != 0 {
+			tools.MaxXMLSize = e.maxBytes
+		}
+		// create a request with the body.
+		req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(e.xml)))
+		if err != nil {
+			t.Log("Error", err)
+		}
 
-	// create a test response recorder, which satisfies the requirements
-	// for a ResponseWriter
-	rr := httptest.NewRecorder()
+		// create a test response recorder, which satisfies the requirements
+		// for a ResponseWriter.
+		rr := httptest.NewRecorder()
 
-	// call ReadXML and check for an error.
-	var note struct {
-		To      string `xml:"to"`
-		From    string `xml:"from"`
-		Heading string `xml:"heading"`
-		Body    string `xml:"body"`
-	}
+		// call ReadXML and check for an error.
+		var note struct {
+			To   string `xml:"to"`
+			From string `xml:"from"`
+		}
 
-	err = tools.ReadXML(rr, req, &note)
-	if err != nil {
-		t.Error("error reading XML:", err)
-	}
-
-	if note.To != "John Smith" {
-		t.Errorf("wrong value in note; expected %s but got %s", "John Smith", note.To)
+		err = tools.ReadXML(rr, req, &note)
+		if e.errorExpected && err == nil {
+			t.Errorf("%s: expected an error, but did not get one", e.name)
+		} else if !e.errorExpected && err != nil {
+			t.Errorf("%s: did not expect an error, but got one: %s", e.name, err)
+		}
 	}
 }
