@@ -3,6 +3,7 @@ package toolbox
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"image"
@@ -537,5 +538,30 @@ func TestTools_ReadXML(t *testing.T) {
 		} else if !e.errorExpected && err != nil {
 			t.Errorf("%s: did not expect an error, but got one: %s", e.name, err)
 		}
+	}
+}
+
+func TestTools_ErrorXML(t *testing.T) {
+	var testTools Tools
+
+	rr := httptest.NewRecorder()
+	err := testTools.ErrorXML(rr, errors.New("some error"), http.StatusServiceUnavailable)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var requestPayload XMLResponse
+	decoder := xml.NewDecoder(rr.Body)
+	err = decoder.Decode(&requestPayload)
+	if err != nil {
+		t.Error("received error when decoding ErrorXML payload:", err)
+	}
+
+	if !requestPayload.Error {
+		t.Error("error set to false in response from ErrorXML, and should be set to true")
+	}
+
+	if rr.Code != http.StatusServiceUnavailable {
+		t.Errorf("wrong status code returned; expected 503, but got %d", rr.Code)
 	}
 }
