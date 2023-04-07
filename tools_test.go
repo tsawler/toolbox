@@ -31,26 +31,52 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 	}
 }
 
-func TestTools_PushJSONToRemote(t *testing.T) {
-	client := NewTestClient(func(req *http.Request) *http.Response {
-		// Test request parameters
-		return &http.Response{
-			StatusCode: http.StatusOK,
-			// Send response to be tested
-			Body: io.NopCloser(bytes.NewBufferString(`OK`)),
-			// Must be set to non-nil value or it panics
-			Header: make(http.Header),
-		}
-	})
+type testData struct {
+	Data any `json:"bar"`
+}
 
-	var testTools Tools
-	var foo struct {
-		Bar string `json:"bar"`
-	}
-	foo.Bar = "bar"
-	_, _, err := testTools.PushJSONToRemote("http://example.com/some/path", foo, client)
-	if err != nil {
-		t.Error("failed to call remote url", err)
+var pushTests = []struct {
+	name          string
+	payload       any
+	errorExpected bool
+}{
+	{
+		name: "valid",
+		payload: testData{
+			Data: "bar",
+		},
+		errorExpected: false,
+	},
+	{
+		name:          "invalid",
+		payload:       make(chan int),
+		errorExpected: true,
+	},
+}
+
+func TestTools_PushJSONToRemote(t *testing.T) {
+	for _, e := range pushTests {
+		client := NewTestClient(func(req *http.Request) *http.Response {
+			// Test request parameters
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				// Send response to be tested
+				Body: io.NopCloser(bytes.NewBufferString(`OK`)),
+				// Must be set to non-nil value or it panics
+				Header: make(http.Header),
+			}
+		})
+
+		var testTools Tools
+
+		_, _, err := testTools.PushJSONToRemote("http://example.com/some/path", e.payload, client)
+		if err == nil && e.errorExpected {
+			t.Errorf("%s: error expected, but none received", e.name)
+		}
+
+		if err != nil && !e.errorExpected {
+			t.Errorf("%s: no error expected, but one received: %v", e.name, err)
+		}
 	}
 }
 
