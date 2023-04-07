@@ -251,7 +251,7 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 	// parse the form so we have access to the file
 	err = r.ParseMultipartForm(int64(t.MaxFileSize))
 	if err != nil {
-		return nil, fmt.Errorf("the uploaded file is too big, and must be less than %d", t.MaxFileSize)
+		return nil, fmt.Errorf("error parsing form data")
 	}
 
 	for _, fHeaders := range r.MultipartForm.File {
@@ -263,6 +263,10 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 					return nil, err
 				}
 				defer infile.Close()
+
+				if hdr.Size > int64(t.MaxFileSize) {
+					return nil, fmt.Errorf("the uploaded file is too big, and must be less than %d", t.MaxFileSize)
+				}
 
 				buff := make([]byte, 512)
 				_, err = infile.Read(buff)

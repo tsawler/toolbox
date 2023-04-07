@@ -75,7 +75,7 @@ var jsonTests = []struct {
 	{name: "not json", json: `Hello, world`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 }
 
-func Test_ReadJSON(t *testing.T) {
+func TestTools_ReadJSON(t *testing.T) {
 
 	for _, e := range jsonTests {
 		var testTools Tools
@@ -143,22 +143,45 @@ func TestTools_ReadJSONAndMarshal(t *testing.T) {
 
 }
 
+var testWriteJSONData = []struct {
+	name          string
+	payload       any
+	errorExpected bool
+}{
+	{
+		name: "valid",
+		payload: JSONResponse{
+			Error:   false,
+			Message: "foo",
+		},
+		errorExpected: false,
+	},
+	{
+		name:          "invalid",
+		payload:       make(chan int),
+		errorExpected: true,
+	},
+}
+
 func TestTools_WriteJSON(t *testing.T) {
-	// create a variable of type toolbox.Tools, and just use the defaults.
-	var testTools Tools
 
-	rr := httptest.NewRecorder()
-	payload := JSONResponse{
-		Error:   false,
-		Message: "foo",
+	for _, e := range testWriteJSONData {
+		// create a variable of type toolbox.Tools, and just use the defaults.
+		var testTools Tools
+
+		rr := httptest.NewRecorder()
+
+		headers := make(http.Header)
+		headers.Add("FOO", "BAR")
+		err := testTools.WriteJSON(rr, http.StatusOK, e.payload, headers)
+		if err == nil && e.errorExpected {
+			t.Errorf("%s: expected error, but did not get one", e.name)
+		}
+		if err != nil && !e.errorExpected {
+			t.Errorf("%s: did not expect error, but got one: %v", e.name, err)
+		}
 	}
 
-	headers := make(http.Header)
-	headers.Add("FOO", "BAR")
-	err := testTools.WriteJSON(rr, http.StatusOK, payload, headers)
-	if err != nil {
-		t.Errorf("failed to write JSON: %v", err)
-	}
 }
 
 func TestTools_ErrorJSON(t *testing.T) {
@@ -225,10 +248,13 @@ var uploadTests = []struct {
 	allowedTypes  []string
 	renameFile    bool
 	errorExpected bool
+	maxSize       int
 }{
-	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false},
-	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false},
-	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true},
+	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false, maxSize: 0},
+	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false, maxSize: 0},
+	{name: "allowed no filetype specified", allowedTypes: []string{}, renameFile: true, errorExpected: false, maxSize: 0},
+	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true, maxSize: 0},
+	{name: "too big", allowedTypes: []string{"image/jpeg,", "image/png"}, errorExpected: true, maxSize: 10},
 }
 
 func TestTools_UploadFiles(t *testing.T) {
@@ -270,6 +296,9 @@ func TestTools_UploadFiles(t *testing.T) {
 
 		var testTools Tools
 		testTools.AllowedFileTypes = e.allowedTypes
+		if e.maxSize > 0 {
+			testTools.MaxFileSize = e.maxSize
+		}
 
 		uploadedFiles, err := testTools.UploadFiles(request, "./testdata/uploads/", e.renameFile)
 		if err != nil && !e.errorExpected {
