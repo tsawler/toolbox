@@ -164,7 +164,6 @@ var testWriteJSONData = []struct {
 }
 
 func TestTools_WriteJSON(t *testing.T) {
-
 	for _, e := range testWriteJSONData {
 		// create a variable of type toolbox.Tools, and just use the defaults.
 		var testTools Tools
@@ -181,7 +180,6 @@ func TestTools_WriteJSON(t *testing.T) {
 			t.Errorf("%s: did not expect error, but got one: %v", e.name, err)
 		}
 	}
-
 }
 
 func TestTools_ErrorJSON(t *testing.T) {
