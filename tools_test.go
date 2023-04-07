@@ -271,12 +271,14 @@ var uploadTests = []struct {
 	renameFile    bool
 	errorExpected bool
 	maxSize       int
+	uploadDir     string
 }{
-	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false, maxSize: 0},
-	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false, maxSize: 0},
-	{name: "allowed no filetype specified", allowedTypes: []string{}, renameFile: true, errorExpected: false, maxSize: 0},
-	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true, maxSize: 0},
-	{name: "too big", allowedTypes: []string{"image/jpeg,", "image/png"}, errorExpected: true, maxSize: 10},
+	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false, maxSize: 0, uploadDir: ""},
+	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false, maxSize: 0, uploadDir: ""},
+	{name: "allowed no filetype specified", allowedTypes: []string{}, renameFile: true, errorExpected: false, maxSize: 0, uploadDir: ""},
+	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true, maxSize: 0, uploadDir: ""},
+	{name: "too big", allowedTypes: []string{"image/jpeg,", "image/png"}, errorExpected: true, maxSize: 10, uploadDir: ""},
+	{name: "invalid directory", allowedTypes: []string{"image/jpeg,", "image/png"}, errorExpected: true, maxSize: 0, uploadDir: "//"},
 }
 
 func TestTools_UploadFiles(t *testing.T) {
@@ -322,7 +324,12 @@ func TestTools_UploadFiles(t *testing.T) {
 			testTools.MaxFileSize = e.maxSize
 		}
 
-		uploadedFiles, err := testTools.UploadFiles(request, "./testdata/uploads/", e.renameFile)
+		var uploadDir = "./testdata/uploads/"
+		if e.uploadDir != "" {
+			uploadDir = e.uploadDir
+		}
+
+		uploadedFiles, err := testTools.UploadFiles(request, uploadDir, e.renameFile)
 		if err != nil && !e.errorExpected {
 			t.Error(err)
 		}
@@ -345,54 +352,67 @@ func TestTools_UploadFiles(t *testing.T) {
 	}
 }
 
+var uploadOneTests = []struct {
+	name          string
+	uploadDir     string
+	errorExpected bool
+}{
+	{name: "valid", uploadDir: "./testdata/uploads/", errorExpected: false},
+	{name: "invalid", uploadDir: "//", errorExpected: true},
+}
+
 func TestTools_UploadOneFile(t *testing.T) {
-	// set up a pipe to avoid buffering
-	pr, pw := io.Pipe()
-	writer := multipart.NewWriter(pw)
+	for _, e := range uploadOneTests {
+		// set up a pipe to avoid buffering
+		pr, pw := io.Pipe()
+		writer := multipart.NewWriter(pw)
 
-	go func() {
-		defer writer.Close()
+		go func() {
+			defer writer.Close()
 
-		// create the form data field 'file'
-		part, err := writer.CreateFormFile("file", "./testdata/img.png")
-		if err != nil {
-			t.Error(err)
+			// create the form data field 'file'
+			part, err := writer.CreateFormFile("file", "./testdata/img.png")
+			if err != nil {
+				t.Error(err)
+			}
+
+			f, err := os.Open("./testdata/img.png")
+			if err != nil {
+				t.Error(err)
+			}
+			defer f.Close()
+			img, _, err := image.Decode(f)
+			if err != nil {
+				t.Error("error decoding image", err)
+			}
+
+			err = png.Encode(part, img)
+			if err != nil {
+				t.Error(err)
+			}
+		}()
+
+		// read from the pipe which receives data
+		request := httptest.NewRequest("POST", "/", pr)
+		request.Header.Add("Content-Type", writer.FormDataContentType())
+
+		var testTools Tools
+		testTools.AllowedFileTypes = []string{"image/png"}
+
+		uploadedFiles, err := testTools.UploadOneFile(request, e.uploadDir, true)
+		if e.errorExpected && err == nil {
+			t.Errorf("%s: error expected, but none received", e.name)
 		}
 
-		f, err := os.Open("./testdata/img.png")
-		if err != nil {
-			t.Error(err)
+		if !e.errorExpected {
+			if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName)); os.IsNotExist(err) {
+				t.Errorf("%s: expected file to exist: %s", e.name, err.Error())
+			}
+
+			// clean up
+			_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName))
 		}
-		defer f.Close()
-		img, _, err := image.Decode(f)
-		if err != nil {
-			t.Error("error decoding image", err)
-		}
-
-		err = png.Encode(part, img)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
-
-	// read from the pipe which receives data
-	request := httptest.NewRequest("POST", "/", pr)
-	request.Header.Add("Content-Type", writer.FormDataContentType())
-
-	var testTools Tools
-	testTools.AllowedFileTypes = []string{"image/png"}
-
-	uploadedFiles, err := testTools.UploadOneFile(request, "./testdata/uploads/", true)
-	if err != nil {
-		t.Error(err)
 	}
-
-	if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName)); os.IsNotExist(err) {
-		t.Errorf("expected file to exist: %s", err.Error())
-	}
-
-	// clean up
-	_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName))
 }
 
 func TestTools_CreateDirIfNotExist(t *testing.T) {
