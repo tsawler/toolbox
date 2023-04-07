@@ -248,10 +248,13 @@ var uploadTests = []struct {
 	allowedTypes  []string
 	renameFile    bool
 	errorExpected bool
+	maxSize       int
 }{
-	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false},
-	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false},
-	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true},
+	{name: "allowed no rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: false, errorExpected: false, maxSize: 0},
+	{name: "allowed rename", allowedTypes: []string{"image/jpeg", "image/png"}, renameFile: true, errorExpected: false, maxSize: 0},
+	{name: "allowed no filetype specified", allowedTypes: []string{}, renameFile: true, errorExpected: false, maxSize: 0},
+	{name: "not allowed", allowedTypes: []string{"image/jpeg"}, errorExpected: true, maxSize: 0},
+	{name: "too big", allowedTypes: []string{"image/jpeg,", "image/png"}, errorExpected: true, maxSize: 10},
 }
 
 func TestTools_UploadFiles(t *testing.T) {
@@ -293,6 +296,9 @@ func TestTools_UploadFiles(t *testing.T) {
 
 		var testTools Tools
 		testTools.AllowedFileTypes = e.allowedTypes
+		if e.maxSize > 0 {
+			testTools.MaxFileSize = e.maxSize
+		}
 
 		uploadedFiles, err := testTools.UploadFiles(request, "./testdata/uploads/", e.renameFile)
 		if err != nil && !e.errorExpected {
