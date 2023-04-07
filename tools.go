@@ -35,7 +35,7 @@ type JSONResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// XMLResponse is the type used for sending JSON around.
+// XMLResponse is the type used for sending XML around.
 type XMLResponse struct {
 	Error   bool        `xml:"error"`
 	Message string      `xml:"message"`
@@ -106,7 +106,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 	return nil
 }
 
-// WriteJSON takes a response status code and arbitrary data and writes a json response to the client.
+// WriteJSON takes a response status code and arbitrary data and writes a JSON response to the client.
 func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := json.Marshal(data)
 	if err != nil {
@@ -120,7 +120,7 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 		}
 	}
 
-	// set the content type and send response
+	// set the content type and send response.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_, _ = w.Write(out)
@@ -129,11 +129,11 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 }
 
 // ErrorJSON takes an error, and optionally a response status code, and generates and sends
-// a json error response.
+// a JSON error response.
 func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
-	// if a custom response code is specified, use that instead of bad request
+	// if a custom response code is specified, use that instead of bad request.
 	if len(status) > 0 {
 		statusCode = status[0]
 	}
@@ -145,7 +145,7 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 	return t.WriteJSON(w, statusCode, payload)
 }
 
-// RandomString returns a random string of letters of length n
+// RandomString returns a random string of letters of length n.
 func (t *Tools) RandomString(n int) string {
 	s, r := make([]rune, n), []rune(randomStringSource)
 	for i := range s {
@@ -172,14 +172,14 @@ func (t *Tools) PushJSONToRemote(uri string, data interface{}, client ...*http.C
 		httpClient = client[0]
 	}
 
-	// build the request and set header
+	// build the request and set header.
 	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, 0, err
 	}
 	request.Header.Set("Content-Type", "application/json")
 
-	// call the uri
+	// call the uri.
 	response, err := httpClient.Do(request)
 	if err != nil {
 		return nil, 0, err
@@ -198,7 +198,7 @@ func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, fi
 	http.ServeFile(w, r, fp)
 }
 
-// UploadedFile is a struct used for the uploaded file
+// UploadedFile is the type used for the uploaded file.
 type UploadedFile struct {
 	NewFileName      string
 	OriginalFileName string
@@ -226,7 +226,7 @@ func (t *Tools) UploadOneFile(r *http.Request, uploadDir string, rename ...bool)
 // and potentially an error. If the optional last parameter is set to true, then we will not rename
 // the files, but will use the original file names.
 func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) ([]*UploadedFile, error) {
-	// check to see if we are renaming the uploadedFiles with the optional last parameter
+	// check to see if we are renaming the uploadedFiles with the optional last parameter.
 	renameFile := true
 	if len(rename) > 0 {
 		renameFile = rename[0]
@@ -234,18 +234,18 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 
 	var uploadedFiles []*UploadedFile
 
-	// create the upload directory if it does not exist
+	// create the upload directory if it does not exist.
 	err := t.CreateDirIfNotExist(uploadDir)
 	if err != nil {
 		return nil, err
 	}
 
-	// sanity check on t.MaxFileSize
+	// sanity check on t.MaxFileSize.
 	if t.MaxFileSize == 0 {
-		t.MaxFileSize = 1024 * 1024 * 5 // 5 megabytes
+		t.MaxFileSize = 1024 * 1024 * 5 // 5 megabytes.
 	}
 
-	// parse the form so we have access to the file
+	// parse the form so we have access to the file.
 	err = r.ParseMultipartForm(int64(t.MaxFileSize))
 	if err != nil {
 		return nil, fmt.Errorf("error parsing form data")
@@ -365,7 +365,7 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 		}
 	}
 
-	// set the content type and send response
+	// set the content type and send response.
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(status)
 	_, _ = w.Write(out)
@@ -373,11 +373,11 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 	return nil
 }
 
-// ReadXML tries to read the body of an XML request.
+// ReadXML tries to read the body of an XML request into a variable.
 func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 
-	// if MaxJSONSize is set, use that value instead of default
+	// if MaxXMLSize is set, use that value instead of default.
 	if t.MaxXMLSize != 0 {
 		maxBytes = t.MaxXMLSize
 	}
@@ -385,7 +385,7 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 
 	dec := xml.NewDecoder(r.Body)
 
-	// attempt to decode the data
+	// attempt to decode the data.
 	err := dec.Decode(data)
 	if err != nil {
 		return err
@@ -404,7 +404,7 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 func (t *Tools) ErrorXML(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
-	// if a custom response code is specified, use that instead of bad request
+	// if a custom response code is specified, use that instead of bad request.
 	if len(status) > 0 {
 		statusCode = status[0]
 	}
