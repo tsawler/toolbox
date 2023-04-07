@@ -398,3 +398,20 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 
 	return nil
 }
+
+// ErrorXML takes an error, and optionally a response status code, and generates and sends
+// an XML error response.
+func (t *Tools) ErrorXML(w http.ResponseWriter, err error, status ...int) error {
+	statusCode := http.StatusBadRequest
+
+	// if a custom response code is specified, use that instead of bad request
+	if len(status) > 0 {
+		statusCode = status[0]
+	}
+
+	var payload XMLResponse
+	payload.Error = true
+	payload.Message = err.Error()
+
+	return t.WriteXML(w, statusCode, payload)
+}
