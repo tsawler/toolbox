@@ -102,7 +102,6 @@ var jsonTests = []struct {
 }
 
 func TestTools_ReadJSON(t *testing.T) {
-
 	for _, e := range jsonTests {
 		var testTools Tools
 		// set max file size
@@ -166,10 +165,9 @@ func TestTools_ReadJSONAndMarshal(t *testing.T) {
 	}
 
 	req.Body.Close()
-
 }
 
-var testWriteJSONData = []struct {
+var writeJSONTests = []struct {
 	name          string
 	payload       any
 	errorExpected bool
@@ -190,7 +188,7 @@ var testWriteJSONData = []struct {
 }
 
 func TestTools_WriteJSON(t *testing.T) {
-	for _, e := range testWriteJSONData {
+	for _, e := range writeJSONTests {
 		// create a variable of type toolbox.Tools, and just use the defaults.
 		var testTools Tools
 
@@ -395,7 +393,6 @@ func TestTools_UploadOneFile(t *testing.T) {
 
 	// clean up
 	_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName))
-
 }
 
 func TestTools_CreateDirIfNotExist(t *testing.T) {
@@ -491,7 +488,6 @@ var xmlTests = []struct {
 }
 
 func TestTools_ReadXML(t *testing.T) {
-
 	for _, e := range xmlTests {
 		// create a variable of type toolbox.Tools, and just use the defaults.
 		var tools Tools
