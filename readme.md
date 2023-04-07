@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/badge/goversion-1.18.x-blue.svg)](https://golang.org)
+[![Version](https://img.shields.io/badge/goversion-1.19.x-blue.svg)](https://golang.org)
 <a href="https://golang.org"><img src="https://img.shields.io/badge/powered_by-Go-3362c2.svg?style=flat-square" alt="Built with GoLang"></a>
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/tsawler/goblender/master/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tsawler/toolbox)](https://goreportcard.com/report/github.com/tsawler/toolbox)
@@ -25,6 +25,7 @@ The included tools are:
 ## Installation
 
 `go get -u github.com/tsawler/toolbox`
+
 
 ## Usage
 
