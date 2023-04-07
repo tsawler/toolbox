@@ -15,6 +15,7 @@ The included tools are:
 - Produce a JSON encoded error response
 - Write XML
 - Read XML
+- Produce an XML encoded error response
 - Upload a file to a specified directory
 - Download a static file
 - Get a random string of length n
