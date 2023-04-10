@@ -42,10 +42,12 @@ type XMLResponse struct {
 	Data    interface{} `xml:"data,omitempty"`
 }
 
-// ReadJSON tries to read the body of a request and converts it from JSON to a variable.
+// ReadJSON tries to read the body of a request and converts it from JSON to a variable. The third parameter, data,
+// is expected to be a pointer, so that we can read data into it.
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 
-	// check content-type header; it should be application/json. If it's not specified, try to decode the body anyway.
+	// Check content-type header; it should be application/json. If it's not specified,
+	// try to decode the body anyway.
 	if r.Header.Get("Content-Type") != "" {
 		contentType := r.Header.Get("Content-Type")
 		if strings.ToLower(contentType) != "application/json" {
@@ -53,10 +55,10 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 		}
 	}
 
-	// set a sensible default for the maximum payload size.
+	// Set a sensible default for the maximum payload size.
 	maxBytes := 1024 * 1024 // one megabyte
 
-	// if MaxJSONSize is set, use that value instead of default.
+	// If MaxJSONSize is set, use that value instead of default.
 	if t.MaxJSONSize != 0 {
 		maxBytes = t.MaxJSONSize
 	}
@@ -64,12 +66,12 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 
 	dec := json.NewDecoder(r.Body)
 
-	// should we allow unknown fields?
+	// Should we allow unknown fields?
 	if !t.AllowUnknownFields {
 		dec.DisallowUnknownFields()
 	}
 
-	// attempt to decode the data, and figure out what the error is, if any, to send back a human-readable
+	// Attempt to decode the data, and figure out what the error is, if any, to send back a human-readable
 	// response.
 	err := dec.Decode(data)
 	if err != nil {
@@ -120,14 +122,14 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 		return err
 	}
 
-	// if we have a value as the last parameter in the function call, then we are setting a custom header.
+	// If we have a value as the last parameter in the function call, then we are setting a custom header.
 	if len(headers) > 0 {
 		for key, value := range headers[0] {
 			w.Header()[key] = value
 		}
 	}
 
-	// set the content type and send response.
+	// Set the content type and send response.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_, _ = w.Write(out)
@@ -140,7 +142,7 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data interface{}, h
 func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
-	// if a custom response code is specified, use that instead of bad request.
+	// If a custom response code is specified, use that instead of bad request.
 	if len(status) > 0 {
 		statusCode = status[0]
 	}
@@ -179,14 +181,14 @@ func (t *Tools) PushJSONToRemote(uri string, data interface{}, client ...*http.C
 		httpClient = client[0]
 	}
 
-	// build the request and set header.
+	// Build the request and set header.
 	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, 0, err
 	}
 	request.Header.Set("Content-Type", "application/json")
 
-	// call the uri.
+	// Call the url.
 	response, err := httpClient.Do(request)
 	if err != nil {
 		return nil, 0, err
@@ -241,18 +243,18 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 
 	var uploadedFiles []*UploadedFile
 
-	// create the upload directory if it does not exist.
+	// Create the upload directory if it does not exist.
 	err := t.CreateDirIfNotExist(uploadDir)
 	if err != nil {
 		return nil, err
 	}
 
-	// sanity check on t.MaxFileSize.
+	// Sanity check on t.MaxFileSize.
 	if t.MaxFileSize == 0 {
 		t.MaxFileSize = 1024 * 1024 * 5 // 5 megabytes.
 	}
 
-	// parse the form so we have access to the file.
+	// Parse the form, so we have access to the file.
 	err = r.ParseMultipartForm(int64(t.MaxFileSize))
 	if err != nil {
 		return nil, fmt.Errorf("error parsing form data")
@@ -359,20 +361,22 @@ func (t *Tools) Slugify(s string) (string, error) {
 }
 
 // WriteXML takes a response status code and arbitrary data and writes an XML response to the client.
+// The Content-Type header is set to application/xml.
 func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := xml.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	// if we have a value as the last parameter in the function call, then we are setting a custom header.
+	// If we have a value as the last parameter in the function call, then we are setting a custom header.
 	if len(headers) > 0 {
 		for key, value := range headers[0] {
 			w.Header()[key] = value
 		}
 	}
 
-	// set the content type and send response.
+	// Set the content type and send response. According to RFC 7303, text/xml and application/xml are to be
+	// treated as the same, so we'll just pick one.
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(status)
 	_, _ = w.Write(out)
@@ -380,11 +384,12 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 	return nil
 }
 
-// ReadXML tries to read the body of an XML request into a variable.
+// ReadXML tries to read the body of an XML request into a variable. The third parameter, data,
+// is expected to be a pointer, so that we can read data into it.
 func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 
-	// if MaxXMLSize is set, use that value instead of default.
+	// If MaxXMLSize is set, use that value instead of default.
 	if t.MaxXMLSize != 0 {
 		maxBytes = t.MaxXMLSize
 	}
@@ -392,7 +397,7 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 
 	dec := xml.NewDecoder(r.Body)
 
-	// attempt to decode the data.
+	// Attempt to decode the data.
 	err := dec.Decode(data)
 	if err != nil {
 		return err
@@ -411,7 +416,7 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 func (t *Tools) ErrorXML(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
-	// if a custom response code is specified, use that instead of bad request.
+	// If a custom response code is specified, use that instead of bad request.
 	if len(status) > 0 {
 		statusCode = status[0]
 	}
