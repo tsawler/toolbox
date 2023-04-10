@@ -462,21 +462,43 @@ func TestTools_Slugify(t *testing.T) {
 	}
 }
 
+var writeXMLTests = []struct {
+	name          string
+	payload       any
+	errorExpected bool
+}{
+	{
+		name: "valid",
+		payload: XMLResponse{
+			Error:   false,
+			Message: "foo",
+		},
+		errorExpected: false,
+	},
+	{
+		name:          "invalid",
+		payload:       make(chan int),
+		errorExpected: true,
+	},
+}
+
 func TestTools_WriteXML(t *testing.T) {
-	// create a variable of type toolbox.Tools, and just use the defaults.
-	var testTools Tools
+	for _, e := range writeXMLTests {
+		// create a variable of type toolbox.Tools, and just use the defaults.
+		var testTools Tools
 
-	rr := httptest.NewRecorder()
-	payload := XMLResponse{
-		Error:   false,
-		Message: "foo",
-	}
+		rr := httptest.NewRecorder()
 
-	headers := make(http.Header)
-	headers.Add("FOO", "BAR")
-	err := testTools.WriteXML(rr, http.StatusOK, payload, headers)
-	if err != nil {
-		t.Errorf("failed to write XML: %v", err)
+		headers := make(http.Header)
+		headers.Add("FOO", "BAR")
+		err := testTools.WriteXML(rr, http.StatusOK, e.payload, headers)
+		if err != nil && !e.errorExpected {
+			t.Errorf("%s, failed to write XML: %v", e.name, err)
+		}
+
+		if err == nil && e.errorExpected {
+			t.Errorf("%s: error expected, but none received", e.name)
+		}
 	}
 }
 
