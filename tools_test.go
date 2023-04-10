@@ -87,6 +87,7 @@ var jsonTests = []struct {
 	errorExpected bool
 	maxSize       int
 	allowUnknown  bool
+	contentType   string
 }{
 	{name: "good json", json: `{"foo": "bar"}`, errorExpected: false, maxSize: 1024, allowUnknown: false},
 	{name: "badly formatted json", json: `{"foo":"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
@@ -101,6 +102,7 @@ var jsonTests = []struct {
 	{name: "missing field name", json: `{jack: "bar"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "file too large", json: `{"foo": "bar"}`, errorExpected: true, maxSize: 5, allowUnknown: false},
 	{name: "not json", json: `Hello, world`, errorExpected: true, maxSize: 1024, allowUnknown: false},
+	{name: "wrong header", json: `{"foo": "bar"}`, errorExpected: true, maxSize: 1024, allowUnknown: false, contentType: "application/xml"},
 }
 
 func TestTools_ReadJSON(t *testing.T) {
@@ -114,14 +116,18 @@ func TestTools_ReadJSON(t *testing.T) {
 
 		// declare a variable to read the decoded json into.
 		var decodedJSON struct {
-			Foo  string   `json:"foo"`
-			Chan chan int `json:"chan"`
+			Foo string `json:"foo"`
 		}
 
 		// create a request with the body.
 		req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(e.json)))
 		if err != nil {
 			t.Log("Error", err)
+		}
+		if e.contentType != "" {
+			req.Header.Add("Content-Type", e.contentType)
+		} else {
+			req.Header.Add("Content-Type", "application/json")
 		}
 
 		// create a test response recorder, which satisfies the requirements

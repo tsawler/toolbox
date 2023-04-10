@@ -44,6 +44,16 @@ type XMLResponse struct {
 
 // ReadJSON tries to read the body of a request and converts it from JSON to a variable.
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
+
+	// check content-type header; it should be application/json. If it's not specified, try to decode the body anyway.
+	if r.Header.Get("Content-Type") != "" {
+		contentType := r.Header.Get("Content-Type")
+		if strings.ToLower(contentType) != "application/json" {
+			return errors.New("the Content-Type header is not application/json")
+		}
+	}
+
+	// set a sensible default for the maximum payload size.
 	maxBytes := 1024 * 1024 // one megabyte
 
 	// if MaxJSONSize is set, use that value instead of default.
@@ -75,10 +85,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 			return errors.New("body contains badly-formed JSON")
 
 		case errors.As(err, &unmarshalTypeError):
-			if unmarshalTypeError.Field != "" {
-				return fmt.Errorf("body contains incorrect JSON type for field %q", unmarshalTypeError.Field)
-			}
-			return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
+			return fmt.Errorf("body contains incorrect JSON type for field %q at offset %d", unmarshalTypeError.Field, unmarshalTypeError.Offset)
 
 		case errors.Is(err, io.EOF):
 			return errors.New("body must not be empty")
