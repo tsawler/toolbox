@@ -96,6 +96,7 @@ var jsonTests = []struct {
 	{name: "empty body", json: ``, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "syntax error in json", json: `{"foo": 1"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "unknown field in json", json: `{"fooo": "bar"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
+	{name: "incorrect type for field", json: `{"foo": 10.2}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "allow unknown field in json", json: `{"fooo": "bar"}`, errorExpected: false, maxSize: 1024, allowUnknown: true},
 	{name: "missing field name", json: `{jack: "bar"}`, errorExpected: true, maxSize: 1024, allowUnknown: false},
 	{name: "file too large", json: `{"foo": "bar"}`, errorExpected: true, maxSize: 5, allowUnknown: false},
@@ -113,7 +114,8 @@ func TestTools_ReadJSON(t *testing.T) {
 
 		// declare a variable to read the decoded json into.
 		var decodedJSON struct {
-			Foo string `json:"foo"`
+			Foo  string   `json:"foo"`
+			Chan chan int `json:"chan"`
 		}
 
 		// create a request with the body.
