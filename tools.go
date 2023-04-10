@@ -42,7 +42,8 @@ type XMLResponse struct {
 	Data    interface{} `xml:"data,omitempty"`
 }
 
-// ReadJSON tries to read the body of a request and converts it from JSON to a variable.
+// ReadJSON tries to read the body of a request and converts it from JSON to a variable. The third parameter, data,
+// is expected to be a pointer, so that we can read data into it.
 func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 
 	// Check content-type header; it should be application/json. If it's not specified,
@@ -360,6 +361,7 @@ func (t *Tools) Slugify(s string) (string, error) {
 }
 
 // WriteXML takes a response status code and arbitrary data and writes an XML response to the client.
+// The Content-Type header is set to application/xml.
 func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := xml.Marshal(data)
 	if err != nil {
@@ -382,7 +384,8 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 	return nil
 }
 
-// ReadXML tries to read the body of an XML request into a variable.
+// ReadXML tries to read the body of an XML request into a variable. The third parameter, data,
+// is expected to be a pointer, so that we can read data into it.
 func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 
