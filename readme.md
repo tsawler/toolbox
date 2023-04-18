@@ -4,6 +4,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tsawler/toolbox)](https://goreportcard.com/report/github.com/tsawler/toolbox)
 ![Tests](https://github.com/tsawler/toolbox/actions/workflows/tests.yml/badge.svg)
 <a href="https://pkg.go.dev/github.com/tsawler/toolbox"><img src="https://img.shields.io/badge/godoc-reference-%23007d9c.svg"></a>
+[![Go Coverage](https://github.com/tsawler/toolbox/wiki/coverage.svg)](https://raw.githack.com/wiki/tsawler/toolbox/coverage.html)
+
 # Toolbox
 
 A simple example of how to create a reusable Go module with commonly used tools.
