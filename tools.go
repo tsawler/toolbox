@@ -147,6 +147,7 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 		statusCode = status[0]
 	}
 
+	// Build the JSON payload.
 	var payload JSONResponse
 	payload.Error = true
 	payload.Message = err.Error()
