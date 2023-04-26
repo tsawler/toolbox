@@ -209,6 +209,38 @@ func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, fi
 	http.ServeFile(w, r, fp)
 }
 
+// DownloadLargeFile is a more efficient way of serving large files, since it  creates a local file, sends an HTTP
+// GET request to the URL, and writes the response body to the local file using io.Copy(). This function streams
+// the data from the response body to the file, which is efficient for downloading large files.
+func (t *Tools) DownloadLargeFile(filepath string, url string) error {
+	// Create the file to write to.
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Get the data from the URL.
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check server response.
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	// Copy the data from the response body to the file
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // UploadedFile is the type used for the uploaded file.
 type UploadedFile struct {
 	NewFileName      string
