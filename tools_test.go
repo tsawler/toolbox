@@ -249,7 +249,7 @@ func TestTools_RandomString(t *testing.T) {
 	}
 }
 
-func TestTools_DownloadStaticFile(t *testing.T) {
+func TestTools_DownloadLargeStaticFile(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 
