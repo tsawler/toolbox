@@ -16,6 +16,7 @@ import (
 	"strings"
 )
 
+// randomStringSource is the source for generating random strings.
 const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
 
 // Tools is the type for this package. Create a variable of this type, and you have access
