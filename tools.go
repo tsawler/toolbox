@@ -316,13 +316,12 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 
 				if outfile, err = os.Create(filepath.Join(uploadDir, uploadedFile.NewFileName)); nil != err {
 					return nil, err
-				} else {
-					fileSize, err := io.Copy(outfile, infile)
-					if err != nil {
-						return nil, err
-					}
-					uploadedFile.FileSize = fileSize
 				}
+				fileSize, err := io.Copy(outfile, infile)
+				if err != nil {
+					return nil, err
+				}
+				uploadedFile.FileSize = fileSize
 
 				uploadedFiles = append(uploadedFiles, &uploadedFile)
 
