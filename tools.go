@@ -156,7 +156,7 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 	return t.WriteJSON(w, statusCode, payload)
 }
 
-// RandomString returns a random string of letters of length n.
+// RandomString returns a random string of letters of length n, using characters specified in randomStringSource.
 func (t *Tools) RandomString(n int) string {
 	s, r := make([]rune, n), []rune(randomStringSource)
 	for i := range s {
@@ -200,7 +200,7 @@ func (t *Tools) PushJSONToRemote(uri string, data interface{}, client ...*http.C
 	return response, response.StatusCode, nil
 }
 
-// DownloadStaticFile downloads a file, and tries to force the browser to avoid displaying it in
+// DownloadStaticFile downloads a file to the remote user, and tries to force the browser to avoid displaying it in
 // the browser window by setting content-disposition. It also allows specification of the display name.
 func (t *Tools) DownloadStaticFile(w http.ResponseWriter, r *http.Request, p, file, displayName string) {
 	fp := path.Join(p, file)
