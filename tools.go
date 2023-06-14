@@ -380,7 +380,9 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 	// treated as the same, so we'll just pick one.
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(status)
-	_, _ = w.Write(out)
+	// Add the XML header.
+	xmlOut := []byte(xml.Header + string(out))
+	_, _ = w.Write(xmlOut)
 
 	return nil
 }
