@@ -19,6 +19,9 @@ import (
 // randomStringSource is the source for generating random strings.
 const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
 
+// defaultMaxUpload is the default max upload size (10 mb)
+const defaultMaxUpload = 10485760
+
 // Tools is the type for this package. Create a variable of this type, and you have access
 // to all the exported methods with the receiver type *Tools.
 type Tools struct {
@@ -57,7 +60,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 	}
 
 	// Set a sensible default for the maximum payload size.
-	maxBytes := 1024 * 1024 // one megabyte
+	maxBytes := defaultMaxUpload
 
 	// If MaxJSONSize is set, use that value instead of default.
 	if t.MaxJSONSize != 0 {
@@ -253,7 +256,7 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 
 	// Sanity check on t.MaxFileSize.
 	if t.MaxFileSize == 0 {
-		t.MaxFileSize = 1024 * 1024 * 5 // 5 megabytes.
+		t.MaxFileSize = defaultMaxUpload
 	}
 
 	// Parse the form, so we have access to the file.
@@ -391,7 +394,7 @@ func (t *Tools) WriteXML(w http.ResponseWriter, status int, data interface{}, he
 // ReadXML tries to read the body of an XML request into a variable. The third parameter, data,
 // is expected to be a pointer, so that we can read data into it.
 func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}) error {
-	maxBytes := 1024 * 1024 // one megabyte
+	maxBytes := defaultMaxUpload
 
 	// If MaxXMLSize is set, use that value instead of default.
 	if t.MaxXMLSize != 0 {
