@@ -55,6 +55,13 @@ var pushTests = []struct {
 	},
 }
 
+func TestNew(t *testing.T) {
+	tools := New()
+	if tools.MaxXMLSize != defaultMaxUpload {
+		t.Error("wrong MaxXMLSize")
+	}
+}
+
 func TestTools_PushJSONToRemote(t *testing.T) {
 	for _, e := range pushTests {
 		client := NewTestClient(func(req *http.Request) *http.Response {
