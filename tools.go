@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -25,11 +26,24 @@ const defaultMaxUpload = 10485760
 // Tools is the type for this package. Create a variable of this type, and you have access
 // to all the exported methods with the receiver type *Tools.
 type Tools struct {
-	MaxJSONSize        int      // maximum size of JSON file we'll process
-	MaxXMLSize         int      // maximum size of XML file we'll process
-	MaxFileSize        int      // maximum size of uploaded files in bytes
-	AllowedFileTypes   []string // allowed file types for upload (e.g. image/jpeg)
-	AllowUnknownFields bool     // if set to true, allow unknown fields in JSON
+	MaxJSONSize        int         // maximum size of JSON file we'll process
+	MaxXMLSize         int         // maximum size of XML file we'll process
+	MaxFileSize        int         // maximum size of uploaded files in bytes
+	AllowedFileTypes   []string    // allowed file types for upload (e.g. image/jpeg)
+	AllowUnknownFields bool        // if set to true, allow unknown fields in JSON
+	ErrorLog           *log.Logger // the info log.
+	InfoLog            *log.Logger // the error log.
+}
+
+// New returns a new toolbox with sensible defaults.
+func New() Tools {
+	return Tools{
+		MaxJSONSize: defaultMaxUpload,
+		MaxXMLSize:  defaultMaxUpload,
+		MaxFileSize: defaultMaxUpload,
+		InfoLog:     log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
+		ErrorLog:    log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
+	}
 }
 
 // JSONResponse is the type used for sending JSON around.
