@@ -35,7 +35,7 @@ type Tools struct {
 	InfoLog            *log.Logger // the error log.
 }
 
-// New neturns a new toolbox with sensible defaults.
+// New returns a new toolbox with sensible defaults.
 func New() Tools {
 	return Tools{
 		MaxJSONSize: defaultMaxUpload,
