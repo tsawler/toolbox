@@ -77,7 +77,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 	maxBytes := defaultMaxUpload
 
 	// If MaxJSONSize is set, use that value instead of default.
-	if t.MaxJSONSize != 0 {
+	if t.MaxJSONSize > 0 {
 		maxBytes = t.MaxJSONSize
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -411,7 +411,7 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 	maxBytes := defaultMaxUpload
 
 	// If MaxXMLSize is set, use that value instead of default.
-	if t.MaxXMLSize != 0 {
+	if t.MaxXMLSize > 0 {
 		maxBytes = t.MaxXMLSize
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
