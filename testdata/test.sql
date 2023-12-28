@@ -6,3 +6,6 @@ SELECT * FROM assistant_services as ass
 
 -- TEST2
 UPDATE assistants SET provider_id = $1 WHERE id = $1;
+
+-- CITIES
+SELECT c.id, c.name, c.country_id FROM cities;
