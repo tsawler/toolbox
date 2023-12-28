@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -447,4 +448,18 @@ func (t *Tools) ErrorXML(w http.ResponseWriter, err error, status ...int) error 
 	payload.Message = err.Error()
 
 	return t.WriteXML(w, statusCode, payload)
+}
+
+// InArray checks if a value exists in a slice.
+func (t *Tools) InArray(val interface{}, array interface{}) bool {
+	arr := reflect.ValueOf(array)
+	if arr.Kind() != reflect.Slice {
+		return false
+	}
+	for i := 0; i < arr.Len(); i++ {
+		if reflect.DeepEqual(val, arr.Index(i).Interface()) {
+			return true
+		}
+	}
+	return false
 }
