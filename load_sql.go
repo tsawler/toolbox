@@ -3,7 +3,6 @@ package toolbox
 import (
 	"bufio"
 	"errors"
-	"io/fs"
 	"os"
 	"strings"
 )
@@ -20,7 +19,7 @@ func (t *Tools) LoadSQLQueries(fileName string) (map[string]string, error) {
 	if err != nil {
 		return query, err
 	}
-	defer func(file fs.File) {
+	defer func(file *os.File) {
 		_ = file.Close()
 	}(file)
 
@@ -55,8 +54,7 @@ func parseSQLQueries(file *os.File, query map[string]string) (map[string]string,
 
 // isSQLQuery checks if the given line is an SQL query or a comment.
 func isSQLQuery(line string) bool {
-	var tools Tools
-	return tools.HasPrefixInList(line, []string{"-- ", "SELECT", "INSERT", "UPDATE", "DELETE"})
+	return hasPrefixInList(line, []string{"-- ", "SELECT", "INSERT", "UPDATE", "DELETE"})
 }
 
 // extractKey extracts the key from the comment line.
@@ -67,8 +65,8 @@ func extractKey(line string) string {
 	return ""
 }
 
-// HasPrefixInList is a prefix checker
-func (t *Tools) HasPrefixInList(str string, prefixes []string) bool {
+// hasPrefixInList is a prefix checker
+func hasPrefixInList(str string, prefixes []string) bool {
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(str, prefix) {
 			return true
