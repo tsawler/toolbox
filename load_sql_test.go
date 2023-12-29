@@ -1,7 +1,6 @@
 package toolbox
 
 import (
-	"io/fs"
 	"os"
 	"strconv"
 	"strings"
@@ -40,7 +39,7 @@ func TestLoadSQLQueries(t *testing.T) {
 
 func TestParseSQLQueries(t *testing.T) {
 	file, err := os.Open("./testdata/test.sql")
-	defer func(file fs.File) {
+	defer func(file *os.File) {
 		_ = file.Close()
 	}(file)
 	if (err != nil) != false {
