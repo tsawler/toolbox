@@ -93,8 +93,8 @@ func TestHasPrefixInList(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			if result := tools.HasPrefixInList(tt.args.key, tt.args.value); result != tt.expect {
-				t.Errorf("HasPrefixInList() result: %v, expect: %v", result, tt.expect)
+			if result := hasPrefixInList(tt.args.key, tt.args.value); result != tt.expect {
+				t.Errorf("hasPrefixInList() result: %v, expect: %v", result, tt.expect)
 			}
 		})
 	}
