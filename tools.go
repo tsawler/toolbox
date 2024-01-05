@@ -450,8 +450,8 @@ func (t *Tools) ErrorXML(w http.ResponseWriter, err error, status ...int) error 
 	return t.WriteXML(w, statusCode, payload)
 }
 
-// InArray checks if a value exists in a slice.
-func (t *Tools) InArray(val interface{}, array interface{}) bool {
+// ContainsElement checks if a value exists in a slice.
+func (t *Tools) ContainsElement(val interface{}, array interface{}) bool {
 	arr := reflect.ValueOf(array)
 	if arr.Kind() != reflect.Slice {
 		return false
