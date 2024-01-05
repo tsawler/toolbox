@@ -615,17 +615,17 @@ func TestTools_ErrorXML(t *testing.T) {
 
 func TestTools_InArray(t *testing.T) {
 	var testTools Tools
-	if result := testTools.InArray(55, []int{23, 45, 46, 68}); result != false {
-		t.Errorf("InArray() result: %v, expect: %v", result, false)
+	if result := testTools.ContainsElement(55, []int{23, 45, 46, 68}); result != false {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, false)
 	}
-	if result := testTools.InArray(45, []int{23, 45, 46, 68}); result != true {
-		t.Errorf("InArray() result: %v, expect: %v", result, true)
+	if result := testTools.ContainsElement(45, []int{23, 45, 46, 68}); result != true {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, true)
 	}
-	if result := testTools.InArray(45, []string{"abc", "def"}); result != false {
-		t.Errorf("InArray() result: %v, expect: %v", result, false)
+	if result := testTools.ContainsElement(45, []string{"abc", "def"}); result != false {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, false)
 	}
-	if result := testTools.InArray("def", []string{"abc", "def"}); result != true {
-		t.Errorf("InArray() result: %v, expect: %v", result, true)
+	if result := testTools.ContainsElement("def", []string{"abc", "def"}); result != true {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, true)
 	}
 	type test struct {
 		name string
@@ -633,10 +633,10 @@ func TestTools_InArray(t *testing.T) {
 	tests := []test{{name: "abc"}, {name: "def"}}
 	t1 := test{name: "def"}
 	t2 := test{name: "xyz"}
-	if result := testTools.InArray(t1, tests); result != true {
-		t.Errorf("InArray() result: %v, expect: %v", result, true)
+	if result := testTools.ContainsElement(t1, tests); result != true {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, true)
 	}
-	if result := testTools.InArray(t2, tests); result != false {
-		t.Errorf("InArray() result: %v, expect: %v", result, false)
+	if result := testTools.ContainsElement(t2, tests); result != false {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, false)
 	}
 }
