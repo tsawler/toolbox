@@ -24,7 +24,7 @@ The included tools are:
 - Post JSON to a remote service 
 - Create a directory, including all parent directories, if it does not already exist
 - Create a URL safe slug from a string
-- InArray checks if a value exists in a slice
+- ContainsElement checks if a value exists in a slice
 - Creating a QUERY map from a SQL file
 
 ## Installation
@@ -417,7 +417,7 @@ Slugified: hello-world-these-are-unsafe-chars
 ```
 
 ### Value exists in a slice
-It is a method we often use when writing code. Is the value we are looking for present in the array? The type of this array can be of any type. Example:
+It is a method we often use when writing code. Is the value we are looking for present in the slice? The type of this slice can be of any type. Example:
 
 ```go
 package main
@@ -434,11 +434,11 @@ func main(){
 	t1 := test{name: "def"}
 	t2 := test{name: "xyz"}
 	
-	if tools.InArray(t1, tests) {
+	if tools.ContainsElement(t1, tests) {
 		fmt.Println("This slice contains the key you are looking for.")
     }
 
-	if !tools.InArray(t2, tests) {
+	if !tools.ContainsElement(t2, tests) {
 		fmt.Println("This slice does not contain the key you are looking for.")
 	}
 }
