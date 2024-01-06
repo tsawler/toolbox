@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -77,7 +78,7 @@ func (t *Tools) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{
 	maxBytes := defaultMaxUpload
 
 	// If MaxJSONSize is set, use that value instead of default.
-	if t.MaxJSONSize != 0 {
+	if t.MaxJSONSize > 0 {
 		maxBytes = t.MaxJSONSize
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -411,7 +412,7 @@ func (t *Tools) ReadXML(w http.ResponseWriter, r *http.Request, data interface{}
 	maxBytes := defaultMaxUpload
 
 	// If MaxXMLSize is set, use that value instead of default.
-	if t.MaxXMLSize != 0 {
+	if t.MaxXMLSize > 0 {
 		maxBytes = t.MaxXMLSize
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -447,4 +448,18 @@ func (t *Tools) ErrorXML(w http.ResponseWriter, err error, status ...int) error 
 	payload.Message = err.Error()
 
 	return t.WriteXML(w, statusCode, payload)
+}
+
+// ContainsElement checks if a value exists in a slice.
+func (t *Tools) ContainsElement(val interface{}, array interface{}) bool {
+	arr := reflect.ValueOf(array)
+	if arr.Kind() != reflect.Slice {
+		return false
+	}
+	for i := 0; i < arr.Len(); i++ {
+		if reflect.DeepEqual(val, arr.Index(i).Interface()) {
+			return true
+		}
+	}
+	return false
 }

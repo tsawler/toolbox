@@ -612,3 +612,31 @@ func TestTools_ErrorXML(t *testing.T) {
 		t.Errorf("wrong status code returned; expected 503, but got %d", rr.Code)
 	}
 }
+
+func TestTools_InArray(t *testing.T) {
+	var testTools Tools
+	if result := testTools.ContainsElement(55, []int{23, 45, 46, 68}); result != false {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, false)
+	}
+	if result := testTools.ContainsElement(45, []int{23, 45, 46, 68}); result != true {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, true)
+	}
+	if result := testTools.ContainsElement(45, []string{"abc", "def"}); result != false {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, false)
+	}
+	if result := testTools.ContainsElement("def", []string{"abc", "def"}); result != true {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, true)
+	}
+	type test struct {
+		name string
+	}
+	tests := []test{{name: "abc"}, {name: "def"}}
+	t1 := test{name: "def"}
+	t2 := test{name: "xyz"}
+	if result := testTools.ContainsElement(t1, tests); result != true {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, true)
+	}
+	if result := testTools.ContainsElement(t2, tests); result != false {
+		t.Errorf("ContainsElement() result: %v, expect: %v", result, false)
+	}
+}
