@@ -24,6 +24,8 @@ The included tools are:
 - Post JSON to a remote service 
 - Create a directory, including all parent directories, if it does not already exist
 - Create a URL safe slug from a string
+- ContainsElement checks if a value exists in a slice
+- Creating a QUERY map from a SQL file
 
 ## Installation
 
@@ -412,4 +414,88 @@ Output from this is:
 ```
 To slugify: hello, world! These are unsafe chars: こんにちは世界*!&^%
 Slugified: hello-world-these-are-unsafe-chars
+```
+
+### Value exists in a slice
+It is a method we often use when writing code. Is the value we are looking for present in the slice? The type of this slice can be of any type. Example:
+
+```go
+package main
+
+import(
+	"fmt"
+	"github.com/tsawler/toolbox"
+)
+
+func main(){
+	var tools toolbox.Tools
+
+	tests := []test{{name: "abc"}, {name: "def"}}
+	t1 := test{name: "def"}
+	t2 := test{name: "xyz"}
+	
+	if tools.ContainsElement(t1, tests) {
+		fmt.Println("This slice contains the key you are looking for.")
+    }
+
+	if !tools.ContainsElement(t2, tests) {
+		fmt.Println("This slice does not contain the key you are looking for.")
+	}
+}
+```
+
+### Creating a QUERY map from a SQL file
+This tool aims to facilitate the use of the go language's database/sql standard library. Writing SQL queries directly in the code can make it messy, so writing SQL queries in .sql files and then calling them from the code helps prevent code clutter, allowing SQL queries to be centralized in one place for better organization. Example:
+
+```go
+package main
+
+import(
+	"database/sql"
+	"encoding/json"
+	"log"
+	"github.com/tsawler/toolbox"
+)
+
+type City struct {
+	ID        int      `json:"id,omitempty"`
+	Name      string   `json:"name,omitempty"`
+	CountryID int      `json:"country_id,omitempty"`
+}
+
+var DB *sql.DB
+var QUERY map[string]string
+
+func main(){
+	var tools toolbox.Tools
+	
+	// Load Sql
+	QUERY = make(map[string]string)
+	if query, err := tools.LoadSQLQueries("./testdata/test.sql"); err != nil {
+		log.Fatalf("Load Sql Error: %v", err)
+	} else {
+		QUERY = query
+	}
+
+	var cities []City
+	rows, err := DB.Query(QUERY["CITIES"])
+	if err != nil {
+		log.Printf("GET Cities Error %v", err)
+		return
+	}
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
+	for rows.Next() {
+		var city City
+		_ = rows.Scan(&city.ID, &city.Name, &city.CountryID)
+		cities = append(cities, city)
+	}
+	
+	if marshal, err := json.MarshalIndent(cities, "", "  "); err != nil {
+		return
+	}else{
+		log.Println(string(marshal))
+	}
+}
 ```
