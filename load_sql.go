@@ -2,7 +2,7 @@ package toolbox
 
 import (
 	"bufio"
-	"errors"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -19,9 +19,9 @@ func (t *Tools) LoadSQLQueries(fileName string) (map[string]string, error) {
 	if err != nil {
 		return query, err
 	}
-	defer func(file *os.File) {
+	defer func() {
 		_ = file.Close()
-	}(file)
+	}()
 
 	query, err = parseSQLQueries(file, query)
 	return query, err
@@ -31,15 +31,17 @@ func (t *Tools) LoadSQLQueries(fileName string) (map[string]string, error) {
 func parseSQLQueries(file *os.File, query map[string]string) (map[string]string, error) {
 	scanner := bufio.NewScanner(file)
 	var key string
-	var queries []string
+	var queryBuilder strings.Builder
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if isSQLQuery(line) || len(key) > 0 {
 			if len(key) > 0 {
-				queries = append(queries, line)
 				if strings.HasSuffix(line, ";") {
-					query[key] = strings.Join(queries, " ")
-					key, queries = "", nil
+					queryBuilder.WriteString(line)
+					query[key] = queryBuilder.String()
+					key, queryBuilder = "", strings.Builder{}
+				} else {
+					queryBuilder.WriteString(line + " ")
 				}
 			} else {
 				key = extractKey(line)
@@ -47,7 +49,7 @@ func parseSQLQueries(file *os.File, query map[string]string) (map[string]string,
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return query, errors.New("error reading file: " + err.Error())
+		return query, fmt.Errorf("error reading file: %w", err)
 	}
 	return query, nil
 }
