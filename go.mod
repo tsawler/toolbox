@@ -1,3 +1,3 @@
 module github.com/tsawler/toolbox
 
-go 1.22
+go 1.21
